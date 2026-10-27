@@ -45,6 +45,7 @@ body {
 
     min-height: 80vh;
     padding: 0 0 40px 50px;
+   
 }
 
 .home_title h1 {
@@ -114,4 +115,116 @@ body {
     box-shadow:
         0 10px 35px rgba(120, 169, 255, 0.12),
         inset 0 1px 0 rgba(245, 249, 255, 0.2);
+}
+
+
+
+/* SEÇÃO DE CONHECIMENTOS */
+
+
+#cards {
+    padding: 120px 50px 80px;
+    margin-top: 40px;
+}
+
+#cards {
+    padding: 120px 50px 80px;
+    margin-top: 40px;
+
+    background: linear-gradient(
+        180deg,
+        rgba(6, 9, 15, 0),
+        rgba(10, 16, 29, 0.85) 15%,
+        #070b12 45%
+    );
+}
+
+
+
+.cards_container {
+    max-width: 1200px;
+    margin: 0 auto;
+
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.cards_container > h2 {
+    grid-column: 1 / -1;
+    font-size: 2rem;
+    margin-bottom: 12px;
+}
+
+
+
+.card {
+    padding: 32px;
+    border-radius: 20px;
+
+    background: linear-gradient(
+        135deg,
+        rgba(120, 169, 255, 0.12),
+        rgba(20, 35, 59, 0.45)
+    );
+
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-top-color: rgba(255, 255, 255, 0.35);
+
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
+    transition:
+        transform 0.3s ease,
+        border-color 0.3s ease,
+        background 0.3s ease,
+        box-shadow 0.3s ease;
+}
+
+
+
+.card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+}
+
+
+
+.card p {
+    font-family: "Inter", sans-serif;
+    color: #A9BDD8;
+    font-size: 1rem;
+    line-height: 1.7;
+}
+
+
+
+.card:hover {
+    transform: translateY(-6px);
+
+    background: linear-gradient(
+        135deg,
+        rgba(120, 169, 255, 0.20),
+        rgba(20, 35, 59, 0.60)
+    );
+
+    border-color: rgba(120, 169, 255, 0.45);
+
+    box-shadow:
+        0 12px 35px rgba(0, 0, 0, 0.22),
+        0 0 25px rgba(120, 169, 255, 0.08);
+}
+
+.card i,
+.card img {
+    width: 32px;
+    height: 32px;
+    font-size: 32px;
+    object-fit: contain;
+    margin: 18px 8px 0 0;
+    vertical-align: middle;
 }
