@@ -1,0 +1,117 @@
+
+* {
+    font-family: "Space Grotesk", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    margin: 0;
+    padding: 0;
+    color: #F5F9FF;
+}
+
+:root {
+    --bg-primary: #0B1220;
+    --bg-secondary: #101A2E;
+
+    --card-bg: #14233B;
+    --glass-bg: rgba(20, 35, 59, 0.55);
+    --glass-border: rgba(255, 255, 255, 0.12);
+
+    --text-primary: #F5F9FF;
+    --text-secondary: #A9BDD8;
+
+    --accent: #78A9FF;
+    --accent-hover: #8BB7FF;
+}
+
+body {
+    background-color: #0B1220;
+
+    background-image: radial-gradient(
+        circle 300px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+        rgba(120, 169, 255, 0.16),
+        transparent 80%
+    );
+
+    background-attachment: fixed;
+    min-height: 100vh;
+}
+
+#home {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-end;
+
+    min-height: 80vh;
+    padding: 0 0 40px 50px;
+}
+
+.home_title h1 {
+    font-size: clamp(2rem, 4.7vw, 4.2rem);
+    margin-bottom: 16px;
+}
+
+.home_text p {
+    font-size: 1.25rem;
+    max-width: 600px;
+    line-height: 1.6;
+}
+
+.button_home {
+    display: inline-block;
+    margin-top: 28px;
+    padding: 18px 42px;
+
+    /* Vidro translúcido */
+    background: linear-gradient(
+        135deg,
+        rgba(120, 169, 255, 0.16),
+        rgba(20, 35, 59, 0.35)
+    );
+
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+
+    /* Borda iluminada */
+    border: 1px solid rgba(245, 249, 255, 0.22);
+    border-top-color: rgba(245, 249, 255, 0.55);
+    border-right-color: rgba(245, 249, 255, 0.55);
+    border-radius: 16px;
+
+    /* Profundidade */
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.22),
+        inset 0 1px 0 rgba(245, 249, 255, 0.12);
+
+    transition:
+        transform 0.3s ease,
+        background 0.3s ease,
+        box-shadow 0.3s ease,
+        border-color 0.3s ease;
+}
+
+.button_home a {
+    color: #F5F9FF;
+    font-family: "Inter", sans-serif;
+    font-size: 1.15rem;
+    font-weight: 500;
+    text-decoration: none;
+    letter-spacing: 0.3px;
+}
+
+.button_home:hover {
+    transform: translateY(-3px);
+
+    background: linear-gradient(
+        135deg,
+        rgba(120, 169, 255, 0.28),
+        rgba(20, 35, 59, 0.55)
+    );
+
+    border-color: rgba(120, 169, 255, 0.55);
+
+    box-shadow:
+        0 10px 35px rgba(120, 169, 255, 0.12),
+        inset 0 1px 0 rgba(245, 249, 255, 0.2);
+}
