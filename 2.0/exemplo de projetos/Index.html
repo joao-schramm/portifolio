@@ -1,0 +1,1947 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<title>Laboratório de Gravitação Universal</title>
+<style>
+:root{
+  --bg:#04060c;--fg:#e8eef8;--mu:#8f9bb0;--ac:#6cb6ff;
+  --pn:rgba(13,19,32,.92);--ln:rgba(255,255,255,.13);
+  --ok:#4ade80;--no:#f87171;--wa:#facc15;
+  --safe-t:env(safe-area-inset-top,0px);--safe-b:env(safe-area-inset-bottom,0px);
+  --safe-l:env(safe-area-inset-left,0px);--safe-r:env(safe-area-inset-right,0px);
+  box-sizing:border-box;
+}
+*{box-sizing:border-box}[hidden]{display:none!important}
+html,body{height:100%;margin:0;overflow:hidden}
+body{
+  background:var(--bg);color:var(--fg);
+  font:13px/1.45 "Trebuchet MS","Segoe UI",system-ui,sans-serif;
+  position:relative;padding:var(--safe-t) var(--safe-r) var(--safe-b) var(--safe-l);
+  -webkit-tap-highlight-color:transparent;
+}
+canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;z-index:0}
+
+.bar{
+  position:absolute;left:max(8px,var(--safe-l));right:max(8px,var(--safe-r));
+  display:flex;gap:6px;flex-wrap:wrap;align-items:center;z-index:10;
+}
+#top{top:max(8px,var(--safe-t))}
+#bot{bottom:max(8px,var(--safe-b));align-items:flex-end}
+
+button{
+  font:inherit;color:var(--fg);background:var(--pn);
+  border:1px solid var(--ln);border-radius:9px;padding:8px 12px;
+  cursor:pointer;backdrop-filter:blur(8px);min-height:36px;
+  -webkit-user-select:none;user-select:none;
+}
+button:hover,button:focus-visible{border-color:var(--ac);outline:none}
+button.on{background:var(--ac);color:#04101f;border-color:var(--ac)}
+button:disabled{opacity:.4;cursor:default}
+#tm{margin-left:6px;color:var(--mu);font-variant-numeric:tabular-nums;white-space:nowrap}
+.note{font-size:11px;color:var(--mu);flex:1;min-width:160px;text-align:right;line-height:1.35}
+
+#side{
+  position:absolute;right:max(8px,var(--safe-r));top:54px;
+  width:340px;max-height:calc(100% - 120px);overflow:auto;
+  background:var(--pn);border:1px solid var(--ln);border-radius:14px;
+  padding:14px;backdrop-filter:blur(12px);display:none;z-index:20;
+  -webkit-overflow-scrolling:touch;
+}
+#side.open{display:block}
+#side-handle{
+  display:none;width:40px;height:5px;background:rgba(255,255,255,.25);
+  border-radius:3px;margin:0 auto 10px;cursor:pointer;
+}
+
+label{display:block;margin:10px 0 3px;color:var(--mu);font-size:12px}
+input[type=text],select{
+  width:100%;background:rgba(255,255,255,.06);color:var(--fg);
+  border:1px solid var(--ln);border-radius:8px;padding:8px;font:inherit;
+  min-height:38px;
+}
+input[type=range]{width:100%;accent-color:var(--ac);height:28px;margin:4px 0}
+.row{display:flex;gap:6px}.row>*{flex:1}
+.ok{color:var(--ok)}.no{color:var(--no)}.wa{color:var(--wa)}.mu,small{color:var(--mu)}
+h3{margin:0 0 4px;font-size:15px;letter-spacing:.02em}
+.rec{margin-top:10px;padding:10px;border:1px dashed var(--ln);border-radius:8px;font-size:12px;line-height:1.5}
+#st{margin-top:10px;font-weight:600;line-height:1.4}
+#analysis-box{
+  margin-top:10px;padding:10px;background:rgba(0,0,0,.25);
+  border-radius:8px;border:1px solid var(--ln);font-size:12px;line-height:1.55;
+}
+#hint{
+  position:absolute;top:56px;left:50%;transform:translateX(-50%);
+  background:var(--pn);border:1px solid var(--ln);border-radius:9px;
+  padding:8px 14px;color:var(--mu);pointer-events:none;text-align:center;
+  max-width:min(90%,420px);z-index:15;font-size:12px;
+}
+
+#more-menu{
+  display:none;position:absolute;bottom:56px;left:max(8px,var(--safe-l));
+  background:var(--pn);border:1px solid var(--ln);border-radius:12px;
+  padding:8px;z-index:25;flex-direction:column;gap:4px;min-width:160px;
+  backdrop-filter:blur(12px);
+}
+#more-menu.open{display:flex}
+#more-menu button{width:100%;text-align:left;justify-content:flex-start}
+
+#overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:18;
+}
+#overlay.show{display:block}
+
+#legend3d{
+  display:none;position:absolute;top:max(52px,var(--safe-t));left:max(8px,var(--safe-l));
+  background:var(--pn);border:1px solid var(--ln);border-radius:9px;
+  padding:6px 10px;font-size:11px;color:var(--mu);z-index:12;line-height:1.4;
+  backdrop-filter:blur(8px);pointer-events:none;max-width:min(90vw,280px);
+}
+#legend3d.show{display:block}
+body.mode3d #bot .note{display:none}
+body.mode3d #side{max-height:min(48vh,420px)}
+@media (max-width:720px){
+  body.mode3d #legend3d{
+    top:auto;bottom:max(56px,var(--safe-b));left:50%;transform:translateX(-50%);
+    text-align:center;font-size:10px;padding:5px 8px;
+  }
+  body.mode3d #top{gap:3px}
+  body.mode3d #top button{padding:7px 8px;font-size:11px;min-height:34px}
+  body.mode3d #tm{font-size:10px}
+  body.mode3d #side{
+    max-height:min(45vh,380px);
+  }
+}
+
+@media (max-width:900px){
+  button{padding:9px 11px;min-height:40px;font-size:13px}
+  .note{display:none}
+  #bot .hide-sm{display:none}
+  #btn-more{display:inline-flex}
+}
+@media (max-width:720px){
+  #side{
+    left:0;right:0;top:auto;bottom:0;width:100%;
+    max-height:min(62vh,520px);border-radius:16px 16px 0 0;
+    padding:10px 14px calc(14px + var(--safe-b));
+    transform:translateY(110%);transition:transform .28s ease;
+    display:block;visibility:hidden;
+  }
+  #side.open{transform:translateY(0);visibility:visible}
+  #side-handle{display:block}
+  #top{gap:4px}
+  #top button{padding:8px 10px;font-size:12px}
+  #sp button{padding:6px 8px;min-width:0;font-size:12px}
+  #tm{font-size:11px;margin-left:2px}
+  h3{font-size:14px}
+  label{margin:8px 0 2px;font-size:11px}
+  input[type=text],select{padding:9px;min-height:42px;font-size:14px}
+  input[type=range]{height:32px}
+  .row{flex-direction:column}
+  #analysis-box,.rec{font-size:11.5px}
+  #bot{gap:4px}
+  #bot button{padding:8px 10px;font-size:12px}
+}
+@media (max-width:720px) and (orientation:landscape){
+  #side{
+    left:auto;right:0;top:0;bottom:0;width:min(320px,42vw);
+    max-height:100%;border-radius:0;padding:10px 12px;
+    transform:translateX(110%);
+  }
+  #side.open{transform:translateX(0)}
+  #side-handle{display:none}
+  #top{right:min(330px,44vw)}
+  #bot{right:min(330px,44vw)}
+}
+@media (min-width:721px){
+  #btn-more{display:none}
+  #more-menu{display:none!important}
+}
+
+/* --- Câmera que acompanha / seletor de corpos / painel de informações --- */
+#unf{border-color:var(--ac);color:var(--ac)}
+#body-menu{
+  display:none;position:absolute;bottom:56px;left:max(8px,var(--safe-l));
+  background:var(--pn);border:1px solid var(--ln);border-radius:12px;
+  padding:8px;z-index:25;flex-direction:column;gap:4px;min-width:190px;
+  max-width:min(92vw,320px);max-height:50vh;overflow:auto;backdrop-filter:blur(12px);
+}
+#body-menu.open{display:flex}
+#body-menu button{width:100%;text-align:left;display:flex;flex-direction:column;gap:1px;align-items:flex-start}
+#body-menu button small{color:inherit;opacity:.75;font-size:11px}
+.sec{margin-top:10px;padding-top:8px;border-top:1px solid var(--ln)}
+.sec:first-child{margin-top:2px;padding-top:0;border-top:0}
+.sec-t{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--mu);margin-bottom:2px}
+.kv{margin:7px 0}
+.kv .k{color:var(--mu);font-size:12px}
+.kv .v{font-size:14px;font-weight:600;overflow-wrap:anywhere}
+.kv small{display:block;line-height:1.35;margin-top:1px}
+.fr{display:flex;justify-content:space-between;gap:8px;margin:3px 0;font-size:12.5px}
+.fr b{white-space:nowrap}
+details{margin-top:10px;border-top:1px solid var(--ln);padding-top:8px}
+summary{cursor:pointer;color:var(--ac);font-size:12px;padding:4px 0;list-style-position:inside}
+.help{font-size:12px;line-height:1.5;color:var(--fg)}
+.help p{margin:6px 0}
+#adv-body{font-size:12px;line-height:1.55;margin-top:4px}
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="overlay"></div>
+<div id="legend3d"></div>
+
+<div class="bar" id="top">
+  <button id="pl" type="button">▶ Iniciar</button>
+  <button id="rs" type="button" title="Volta ao estado do último corpo adicionado">↻ Reiniciar</button>
+  <button id="btn3d" type="button" title="Alternar visão 2D / 3D">◉ Visão 3D</button>
+  <button id="unf" type="button" hidden>Desfixar câmera</button>
+  <span id="sp"></span>
+  <span id="tm"></span>
+</div>
+
+<div id="hint"></div>
+
+<div id="side">
+  <div id="side-handle" aria-hidden="true"></div>
+  <div id="side-head" style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px">
+    <span id="side-head-label" class="mu" style="font-size:11px;letter-spacing:.03em"></span>
+    <button id="btn-close-side" type="button" title="Fechar painel" style="padding:4px 10px;min-height:28px;font-size:14px;line-height:1">✕ Fechar</button>
+  </div>
+  <div id="cfg" hidden>
+    <h3 id="cfg-title">Novo corpo</h3>
+    <label for="nm">Nome do corpo</label>
+    <input type="text" id="nm" maxlength="24" autocomplete="off" autocapitalize="characters" spellcheck="false">
+    <small id="nm-err" class="no" hidden></small>
+    <label for="m">Massa (kg)</label>
+    <input type="text" id="m" inputmode="decimal">
+    <input type="range" id="lm" min="0" max="38" step=".01" aria-label="Massa (escala log)">
+    <div id="mc" class="mu"></div>
+    <select id="lib" aria-label="Referências de massa"></select>
+    <label><input type="checkbox" id="cp"> Corpo colapsado (raio = rₛ; só a partir de 3 M☉)</label>
+
+    <label for="v">Velocidade (m/s), relativa ao corpo de referência</label>
+    <input type="text" id="v" inputmode="decimal">
+    <input type="range" id="vk" min="0" max="2" step=".005" aria-label="Velocidade em múltiplos da circular">
+
+    <label for="dir" id="dl">Direção (°)</label>
+    <input type="text" id="dir" inputmode="decimal">
+    <input type="range" id="dr" min="0" max="360" step="1" aria-label="Direção">
+
+    <label>Posição x, y (km) — ou toque no espaço / num anel orbital</label>
+    <div class="row">
+      <input type="text" id="px" aria-label="x" inputmode="decimal">
+      <input type="text" id="py" aria-label="y" inputmode="decimal">
+    </div>
+
+    <div id="analysis-box"></div>
+    <div id="st"></div>
+    <div class="rec" id="rec"></div>
+
+    <div class="row" style="margin-top:12px">
+      <button id="ok" type="button">Adicionar à simulação</button>
+      <button id="cn" type="button">Cancelar</button>
+    </div>
+  </div>
+  <div id="info" hidden>
+    <h3 id="iname"></h3>
+    <div id="ibody">
+      <div id="i-main"></div>
+      <details id="i-adv"><summary>Detalhes avançados</summary><div id="adv-body"></div></details>
+      <details id="i-help"><summary>Massa, força e peso: qual a diferença?</summary>
+        <div class="help">
+          <p><b>Massa (kg)</b> é a quantidade de matéria do corpo. É uma propriedade do próprio corpo: não muda se ele estiver perto ou longe de outros.</p>
+          <p><b>Força gravitacional (N)</b> é a atração entre dois corpos, F = G·m₁·m₂ / r². Não é uma propriedade só deste corpo: depende das massas dos outros corpos e da distância entre eles, e muda quando eles se movem. Os dois corpos de um par se atraem com forças de mesmo valor.</p>
+          <p><b>Peso</b> é a força gravitacional que um corpo (como um planeta) exerce sobre um objeto na sua superfície. O simulador calcula as forças entre os corpos cadastrados; o peso de objetos na superfície não é calculado aqui.</p>
+        </div>
+      </details>
+    </div>
+    <button id="fol" type="button" hidden style="width:100%;margin-top:12px">Fixar câmera neste corpo</button>
+    <div class="row" style="margin-top:12px">
+      <button id="ed" type="button">Editar corpo</button>
+      <button id="rm" type="button">Remover corpo</button>
+    </div>
+  </div>
+</div>
+
+<div class="bar" id="bot">
+  <button id="add" type="button">+ Adicionar corpo</button>
+  <button id="btn-bodies" type="button" title="Escolher um corpo para visualizar e acompanhar">◎ Corpos</button>
+  <button id="zo" type="button">−</button>
+  <button id="zi" type="button">+</button>
+  <button id="ft" type="button" class="hide-sm">Ajustar</button>
+  <button id="ex" type="button" class="hide-sm">Exemplo Sol–Terra–Lua</button>
+  <button id="cl" type="button" class="hide-sm">Limpar</button>
+  <button id="btn-more" type="button" style="display:none">⋯ Mais</button>
+  <div class="note">
+    <span>🔴 região de colisão/escape · ⚪ transição · 🟢 região favorável a trajetórias ligadas (não garante estabilidade eterna). Toque num anel para posicionar.</span><br>
+    <b>Tamanho visual representativo (não em escala real). Física: Newtoniana N-corpos.</b>
+  </div>
+</div>
+
+<div id="body-menu" role="menu" aria-label="Corpos da simulação"></div>
+
+<div id="more-menu">
+  <button id="ft2" type="button">Ajustar visão</button>
+  <button id="ex2" type="button">Exemplo Sol–Terra–Lua</button>
+  <button id="cl2" type="button">Limpar tudo</button>
+</div>
+
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const G=6.674e-11, C=299792458, MSUN=1.989e30, NT=700;
+const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num=s=>parseFloat(String(s).replace(',','.'));
+const SUP='⁰¹²³⁴⁵⁶⁷⁸⁹';
+const sup=n=>String(n).split('').map(c=>c==='-'?'⁻':SUP[+c]||c).join('');
+function sci(x,d=2){
+  if(!isFinite(x))return '—';
+  if(x===0)return '0';
+  const e=Math.floor(Math.log10(Math.abs(x)));
+  if(e>-3&&e<5)return x.toLocaleString('pt-BR',{maximumFractionDigits:d});
+  return (x/10**e).toFixed(d).replace('.',',')+' × 10'+sup(e);
+}
+const fdist=m=>m<1e3?sci(m)+' m':sci(m/1e3)+' km';
+
+const LIB=[
+  ['Pessoa','🧍',70],['Carro','🚗',1500],['Prédio','🏢',1e8],['Navio cargueiro','🚢',2e8],
+  ['Pirâmide de Gizé','🔺',5.9e9],['Cometa 67P','☄️',1e13],['Fobos','🪨',1.07e16],
+  ['Ceres','🟤',9.4e20],['Lua','🌙',7.35e22],['Mercúrio','🌑',3.3e23],['Marte','🔴',6.42e23],
+  ['Vênus','🟡',4.87e24],['Terra','🌎',5.972e24],['Netuno','🔵',1.02e26],['Saturno','🪐',5.68e26],
+  ['Júpiter','🟠',1.898e27],['Sol','☀️',1.989e30],['Estrela massiva (~20 M☉)','⭐',4e31],
+  ['Sgr A* (buraco negro supermassivo)','🕳️',8e36]
+];
+const COL=[['#eef3fb','#6f7b90'],['#d9cdb9','#5f574c'],['#8fd0ff','#1b4d86'],['#ffd0a0','#a4522a'],['#fffbe0','#ffa826']];
+const kindOf=m=>m<1e9?0:m<1e24?1:m<1e26?2:m<1e29?3:4;
+
+function classify(m){
+  let b=LIB[0],bd=1e9;
+  for(const o of LIB){const d=Math.abs(Math.log10(m/o[2]));if(d<bd){bd=d;b=o}}
+  const r=m/b[2];
+  return r>=.7&&r<=1.4?`≈ massa de ${b[1]} ${b[0]}`:`≈ ${sci(r)} × ${b[1]} ${b[0]}`;
+}
+const rsOf=m=>2*G*m/(C*C);
+function radiusOf(b){
+  const R=Math.cbrt(3*b.m/(4*Math.PI*(b.m>1e26?1400:3000)));
+  b.bh=(b.compact&&b.m>=3*MSUN)||rsOf(b.m)>=R;
+  return b.bh?rsOf(b.m):R;
+}
+const visR=m=>3+23*Math.pow(Math.max(0,Math.log10(m)-1)/30,2.5);
+
+const Phys={
+  acc(bs){
+    for(const b of bs)b.ax=b.ay=0;
+    for(let i=0;i<bs.length;i++)for(let j=i+1;j<bs.length;j++){
+      const a=bs[i],b=bs[j],dx=b.x-a.x,dy=b.y-a.y,d2=dx*dx+dy*dy+1e-6,k=G/(d2*Math.sqrt(d2));
+      a.ax+=k*b.m*dx;a.ay+=k*b.m*dy;b.ax-=k*a.m*dx;b.ay-=k*a.m*dy;
+    }
+  },
+  dt(bs){
+    let t=1e30;
+    for(let i=0;i<bs.length;i++)for(let j=i+1;j<bs.length;j++){
+      const a=bs[i],b=bs[j],d=Math.hypot(b.x-a.x,b.y-a.y),
+        vr=Math.hypot(b.vx-a.vx,b.vy-a.vy)+1e-9;
+      t=Math.min(t,.01*Math.sqrt(d*d*d/(G*(a.m+b.m))),.05*d/vr);
+    }
+    return t;
+  },
+  step(bs,dt){
+    const h=dt*dt/2;
+    for(const b of bs){b.ox=b.ax;b.oy=b.ay;b.x+=b.vx*dt+b.ax*h;b.y+=b.vy*dt+b.ay*h}
+    this.acc(bs);
+    for(const b of bs){b.vx+=(b.ox+b.ax)*dt/2;b.vy+=(b.oy+b.ay)*dt/2}
+  }
+};
+
+function analyze(rx,ry,vx,vy,M,m,Rs){
+  const mu=G*(M+m);
+  const r=Math.hypot(rx,ry)||1e-12;
+  const v=Math.hypot(vx,vy);
+  const eps=v*v/2-mu/r;
+  const h=rx*vy-ry*vx;
+  const h2=h*h;
+  const vesc=Math.sqrt(2*mu/r);
+  const vc=Math.sqrt(mu/r);
+  const eArg=1+2*eps*h2/(mu*mu);
+  const e=Math.sqrt(Math.max(0,eArg));
+  const rp=h2/(mu*(1+e));
+  const rad=rx*vx+ry*vy;
+  const vRatio=v/(vesc||1);
+  let key;
+  if(rp<Rs&&(eps<0||rad<=0)) key='col';
+  else if(eps<0) key=e<0.08?'bnd':'ell';
+  else if(Math.abs(vRatio-1)<0.04) key='near';
+  else key='esc';
+  const T=eps<0?2*Math.PI*Math.sqrt(Math.pow(-mu/(2*eps),3)/mu):0;
+  return{key,e,rp,vesc,vc,eps,mu,r,v,T,h,rad,vRatio};
+}
+
+function stateTxt(A,multiHint){
+  const base={
+    col:{t:'🔴 Colisão prevista',c:'no'},
+    near:{t:'🟡 Próxima da fuga',c:'wa'},
+    esc:{t:'🔴 Trajetória de escape',c:'no'},
+    bnd:{t:`🟢 Trajetória ligada — aproximadamente circular (e ≈ ${A.e.toFixed(2).replace('.',',')})`,c:'ok'},
+    ell:{t:`🟢 Trajetória elíptica ligada (e = ${A.e.toFixed(2).replace('.',',')})`,c:'ok'},
+    undef:{t:'⚪ Trajetória indefinida / complexa',c:'mu'}
+  }[A.key]||{t:'⚪ Trajetória indefinida',c:'mu'};
+  if(multiHint) base.t+=' · sistema N-corpos (perturbação)';
+  return base;
+}
+
+function dominant(b){
+  let ref=null,p=0;
+  for(const o of bodies)if(o!==b){
+    const q=o.m/(((o.x-b.x)**2+(o.y-b.y)**2)||1e-30);
+    if(q>p){p=q;ref=o}
+  }
+  return ref;
+}
+function pull(x,y){
+  let ref=null,p=0;
+  for(const o of bodies){
+    if(cfg&&cfg.editTarget===o) continue;
+    const q=o.m/(((o.x-x)**2+(o.y-y)**2)||1);
+    if(q>p){p=q;ref=o}
+  }
+  return ref;
+}
+
+/** Influência gravitacional em (x,y) — mesma fórmula G·m/d² de Phys.acc.
+ *  pctDom + pctOther = 100% (parcelas da soma dos módulos); aOther = módulo da soma vetorial dos demais.
+ *  O dominante é o de maior atração instantânea, NÃO o único que atrai. */
+function gravInfluence(x,y,self,ref){
+  let tot=0,aDom=0,ox=0,oy=0;
+  for(const o of bodies){
+    if(o===self) continue;
+    const dx=o.x-x,dy=o.y-y,d2=dx*dx+dy*dy+1e-6,d=Math.sqrt(d2),a=G*o.m/d2;
+    tot+=a;
+    if(o===ref) aDom=a; else{ox+=a*dx/d;oy+=a*dy/d}
+  }
+  const pctDom=tot?100*aDom/tot:100;
+  return {pctDom,pctOther:100-pctDom,aDom,aOther:Math.hypot(ox,oy)};
+}
+const pct=x=>x>0&&x<.1?'< 0,1':x.toFixed(1).replace('.',',');
+
+function zones(b){
+  const d=dominant(b);
+  const R=b.R;
+  let H=Infinity;
+  if(d){
+    const dist=Math.hypot(d.x-b.x,d.y-b.y);
+    H=dist*Math.cbrt(b.m/(3*d.m));
+  }else H=200*R;
+  return{R,H:Math.max(H,5*R)};
+}
+function zoneOf(r,z){
+  if(r<2.2*z.R) return 'r';
+  if(r<4.5*z.R) return 'w';
+  if(r<=0.55*z.H) return 'g';
+  if(r<=z.H) return 'w';
+  return 'r';
+}
+function rings(b){
+  const o=[],z=zones(b);
+  let r=2.2*b.R;
+  for(let k=0;k<90;k++,r*=1.85){
+    const p=r/cam.s;
+    if(p>Math.max(W,H)*1.4||r>25*z.H) break;
+    if(p>=14) o.push({r,p,z:zoneOf(r,z)});
+  }
+  return o;
+}
+
+function multiBodyPerturbation(ref,x,y,m){
+  if(bodies.length<=1) return false;
+  const r2=((ref.x-x)**2+(ref.y-y)**2)||1;
+  const main=ref.m/r2;
+  let maxOther=0;
+  for(const o of bodies){
+    if(o===ref||(cfg&&cfg.editTarget===o)) continue;
+    const q=o.m/(((o.x-x)**2+(o.y-y)**2)||1);
+    if(q>maxOther) maxOther=q;
+  }
+  return maxOther>0.08*main;
+}
+
+function dirFromVel(rx,ry,vx,vy){
+  const d=Math.hypot(rx,ry)||1;
+  const ux=rx/d,uy=ry/d;
+  const vr=vx*ux+vy*uy;
+  const vt=-vx*uy+vy*ux;
+  let deg=Math.atan2(vt,vr)*180/Math.PI;
+  if(deg<0) deg+=360;
+  return deg;
+}
+
+let bodies=[],snap=[],snapT=0,simT=0,speed=100,running=false,wasRun=false,cnt=0;
+let selected=null,cfg=null,pv=null,pv2=null,hover=null;
+const cam={x:0,y:0,s:1e9};
+
+/* ===== Modo 3D (visualização; física permanece 2D) ===== */
+let mode3d=false;
+const cam3d={
+  targetX:0,targetY:0,targetZ:0,
+  dist:1e12, yaw:0.4, pitch:0.55,
+  minDist:1e8, maxDist:1e16,
+  free:false   // true = alvo congelado (após "Desfixar câmera"); false = comportamento padrão
+};
+let drag3d=null;
+const FOV_K=0.55; // campo de visão da câmera 3D: distância focal (px) = min(W,H)·FOV_K
+
+/* ===== Câmera que acompanha um corpo =====
+ * Um único estado compartilhado por 2D e 3D: `follow` (o próprio objeto de `bodies`).
+ * Cada modo ajusta apenas a sua câmera (cam / cam3d); posições, velocidades e a integração
+ * numérica dos corpos nunca são tocadas por este bloco. */
+let follow=null,followHold=false;
+const glide={on:false,t0:0,dur:450,fx:0,fy:0,fs:0,ts:0}; // transição suave: origem (x,y,escala) → alvo
+const clampD=d=>Math.max(cam3d.minDist,Math.min(cam3d.maxDist,d));
+// Mesma escala na tela nos dois modos: px/m em 2D = 1/cam.s ; em 3D, no alvo = min(W,H)·FOV_K/dist
+const dist3dFrom2d=s=>clampD(s*FOV_K*Math.min(W,H));
+const scale2dFrom3d=d=>d/(FOV_K*Math.min(W,H));
+
+function startGlide(zoomTo){
+  glide.on=true;glide.t0=performance.now();
+  if(mode3d){glide.fx=cam3d.targetX;glide.fy=cam3d.targetY;glide.fs=cam3d.dist;glide.ts=zoomTo?clampD(zoomTo):0}
+  else{glide.fx=cam.x;glide.fy=cam.y;glide.fs=cam.s;glide.ts=zoomTo||0}
+}
+/** Zoom ao fixar num corpo (0 = não altera). Mesma regra que focusOn usava, sem re-zoom a cada clique. */
+function zoomGoal(b,already){
+  if(mode3d) return already?0:cam3d.dist*0.55;
+  const targetS=Math.max(b.R*8,visR(b.m)*cam.s*0.15)/(Math.min(W,H)*0.12);
+  return cam.s>targetS*2.5?targetS*1.6:0;
+}
+function startFollow(b){
+  if(!b||!bodies.includes(b)) return;
+  if(follow===b&&!followHold) return;
+  const already=!!follow;           // trocar de alvo mantém o zoom atual
+  follow=b;followHold=false;cam3d.free=false;
+  startGlide(zoomGoal(b,already));
+  syncFollowUI();
+}
+/** Encerra o acompanhamento sem mexer na simulação nem no corpo selecionado.
+ *  Em 3D o alvo da câmera fica congelado onde está; em 2D a câmera já é livre. */
+function releaseFollow(reason){
+  if(!follow) return;
+  follow=null;followHold=false;glide.on=false;
+  cam3d.free=true;
+  syncFollowUI();
+  if(reason==='user') flash('Câmera desfixada. A simulação continua; use “Ajustar” para reenquadrar.');
+  else if(reason==='pan') flash('Câmera desfixada ao mover o mapa.');
+  else if(reason==='removed') flash('O corpo acompanhado deixou de existir. Câmera liberada.');
+}
+/** Zera tudo (novo exemplo, limpar). */
+function resetFollow(){
+  follow=null;followHold=false;glide.on=false;cam3d.free=false;syncFollowUI();
+}
+/** Chamado a cada quadro, depois da física e antes do desenho. */
+function updateFollowCamera(now){
+  if(!follow) return;
+  if(!bodies.includes(follow)){releaseFollow('removed');return}
+  if(cfg){followHold=true;return}                 // edição/novo corpo: a câmera segue o painel
+  if(followHold){followHold=false;startGlide(0)}
+  let k=1;
+  if(glide.on){
+    const u=Math.min(1,(now-glide.t0)/glide.dur);
+    k=u*u*(3-2*u);
+    if(u>=1){glide.on=false;k=1}
+  }
+  const x=k===1?follow.x:glide.fx+(follow.x-glide.fx)*k;
+  const y=k===1?follow.y:glide.fy+(follow.y-glide.fy)*k;
+  const z=glide.ts>0?(k===1?glide.ts:glide.fs*Math.pow(glide.ts/glide.fs,k)):null; // zoom interpolado em escala log
+  if(mode3d){cam3d.targetX=x;cam3d.targetY=y;cam3d.targetZ=0;if(z!==null)cam3d.dist=clampD(z)}
+  else{cam.x=x;cam.y=y;if(z!==null)cam.s=z}
+  if(!glide.on) glide.ts=0;
+}
+/** Ao alternar 2D/3D com um corpo acompanhado: a identidade do alvo é compartilhada;
+ *  cada câmera é reposicionada na sua própria geometria (mesma escala aparente). */
+function syncCameraToMode(){
+  if(!follow) return;
+  glide.on=false;glide.ts=0;
+  if(mode3d){cam3d.dist=dist3dFrom2d(cam.s);cam3d.targetX=follow.x;cam3d.targetY=follow.y;cam3d.targetZ=0}
+  else{cam.s=scale2dFrom3d(cam3d.dist);cam.x=follow.x;cam.y=follow.y}
+}
+/** Ponto único de seleção (clique em 2D/3D e menu de corpos): seleciona, mostra info e acompanha. */
+function selectBody(b){
+  if(!b||!bodies.includes(b)) return;
+  if(cfg) return flash('Conclua ou cancele a edição antes de selecionar outro corpo.');
+  selected=b;
+  startFollow(b);
+  showSide();updInfo();
+}
+function syncFollowUI(){
+  const u=$('unf');
+  u.hidden=!follow;
+  u.title=follow?'Parar de acompanhar '+follow.name:'';
+  $('fol').hidden=!(selected&&selected!==follow);
+  buildBodyMenu();
+}
+let bmSig='';
+function buildBodyMenu(){
+  const m=$('body-menu');
+  const sig=bodies.map(b=>b.name+'|'+b.m).join(';')+'#'+(follow?follow.name:'')+'#'+(selected?selected.name:'');
+  if(sig===bmSig) return;
+  bmSig=sig;
+  m.textContent='';
+  if(!bodies.length){
+    const e=document.createElement('small');e.className='mu';e.style.padding='6px';
+    e.textContent='Nenhum corpo na simulação.';m.appendChild(e);return;
+  }
+  for(const b of bodies){
+    const bt=document.createElement('button');
+    bt.type='button';bt.dataset.n=b.name;bt.setAttribute('role','menuitem');
+    bt.classList.toggle('on',b===follow);
+    const t=document.createElement('b');t.textContent=b.name+(b.bh?' · ⚫':'');
+    const d=document.createElement('small');d.textContent=classify(b.m);
+    bt.append(t,d);m.appendChild(bt);
+  }
+}
+
+function makeBody(o){
+  const b={...o,ax:0,ay:0,tr:new Float64Array(2*NT),th:0,tn:0};
+  b.R=radiusOf(b);
+  b.pts=null; // nuvem de pontos gerada sob demanda
+  return b;
+}
+function snapshot(){
+  snap=bodies.map(({name,m,x,y,vx,vy,compact})=>({name,m,x,y,vx,vy,compact}));
+  snapT=simT;
+}
+function restart(){
+  const fname=follow?follow.name:null;
+  bodies=snap.map(makeBody);simT=snapT;selected=null;Phys.acc(bodies);
+  if(fname){ // os objetos foram recriados: o alvo é reencontrado pela identidade (nome)
+    follow=bodies.find(b=>b.name===fname)||null;
+    if(follow){startGlide(0);syncFollowUI()}else{glide.on=false;cam3d.free=true;syncFollowUI()}
+  }else syncFollowUI();
+}
+function pushTrail(b){
+  const thr=(3*cam.s)**2;
+  if(b.tn){
+    const j=(b.th-1+NT)%NT;
+    if((b.x-b.tr[2*j])**2+(b.y-b.tr[2*j+1])**2<thr) return;
+  }
+  b.tr[2*b.th]=b.x;b.tr[2*b.th+1]=b.y;
+  b.th=(b.th+1)%NT;b.tn=Math.min(b.tn+1,NT);
+}
+function collide(){
+  for(let i=0;i<bodies.length;i++)for(let j=i+1;j<bodies.length;j++){
+    const a=bodies[i],b=bodies[j];
+    if(Math.hypot(a.x-b.x,a.y-b.y)<a.R+b.R){
+      const M=a.m+b.m,big=a.m>=b.m?a:b,sm=big===a?b:a;
+      big.vx=(a.m*a.vx+b.m*b.vx)/M;
+      big.vy=(a.m*a.vy+b.m*b.vy)/M;
+      big.x=(a.m*a.x+b.m*b.x)/M;
+      big.y=(a.m*a.y+b.m*b.y)/M;
+      big.m=M;big.compact=a.compact||b.compact;big.R=radiusOf(big);
+      big.pts=null;
+      bodies.splice(bodies.indexOf(sm),1);
+      if(selected===sm) selected=big;
+      if(follow===sm){follow=big;startGlide(0)} // a câmera passa para o corpo resultante da fusão
+      if(cfg&&cfg.editTarget===sm) cfg.editTarget=big;
+      Phys.acc(bodies);
+      return;
+    }
+  }
+}
+function advance(T){
+  let t=0,n=0;const t0=performance.now();
+  while(t<T&&n++<6000){
+    if((n&63)===0&&performance.now()-t0>14) break; // mantém a interface fluida; simT usa o t realmente integrado
+    const dt=Math.min(Phys.dt(bodies),T-t);
+    Phys.step(bodies,dt);t+=dt;collide();bodies.forEach(pushTrail);
+  }
+  return t;
+}
+function flash(s){
+  const h=$('hint');h.textContent=s;h.hidden=false;
+  clearTimeout(flash.t);flash.t=setTimeout(syncHint,2800);
+}
+function syncHint(){
+  const h=$('hint');
+  if(!bodies.length&&!cfg){
+    h.textContent='Toque em “+ Adicionar corpo” ou carregue o exemplo Sol–Terra–Lua.';
+    h.hidden=false;
+  }else h.hidden=true;
+}
+function setRun(r){running=r;$('pl').textContent=r?'⏸ Pausar':'▶ Iniciar'}
+function load(list){
+  bodies=list.map(makeBody);Phys.acc(bodies);simT=0;selected=null;cnt=bodies.length;snapshot();resetFollow();fit();
+}
+function example(){
+  const ev=29780,mv=1022,ex=1.496e11;
+  load([
+    {name:'CORPO 01',m:1.989e30,x:0,y:0,vx:0,vy:0},
+    {name:'CORPO 02',m:5.972e24,x:ex,y:0,vx:0,vy:ev},
+    {name:'CORPO 03',m:7.342e22,x:ex+3.844e8,y:0,vx:0,vy:ev+mv}
+  ]);
+  cam.x=ex/2;cam.y=0;cam.s=ex*1.3/Math.min(W,H)*1.1;
+  if(mode3d){
+    cam3d.targetX=ex/2;cam3d.targetY=0;cam3d.targetZ=0;
+    cam3d.dist=ex*2.2;
+  }
+  speed=100;setSpeedBtns();setRun(true);closeCfg();syncHint();
+}
+
+/* ===== Nome dos corpos ===== */
+const cleanName=t=>String(t||'').replace(/\s+/g,' ').trim().slice(0,24);
+const nameTaken=(n,except)=>bodies.some(b=>b!==except&&b.name.toLowerCase()===n.toLowerCase());
+/** Próximo nome automático livre (CORPO 01, 02…), pulando nomes já usados (inclusive os digitados). */
+function autoName(){
+  let n=cnt,nm;
+  do{n++;nm='CORPO '+String(n).padStart(2,'0')}while(nameTaken(nm));
+  return{nm,n};
+}
+function showNameErr(t){const e=$('nm-err');e.textContent=t;e.hidden=false;$('nm').focus()}
+function hideNameErr(){$('nm-err').hidden=true}
+$('nm').addEventListener('input',hideNameErr);
+$('nm').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('ok').click()}});
+
+function isMobile(){return window.matchMedia('(max-width:720px)').matches}
+
+function showSide(){
+  const open=!!(cfg||selected);
+  $('side').classList.toggle('open',open);
+  $('overlay').classList.toggle('show',open&&isMobile());
+  $('cfg').hidden=!cfg;
+  $('info').hidden=!selected||!!cfg;
+  const lab=$('side-head-label');
+  if(lab) lab.textContent=cfg?(cfg.editTarget?'Edição de corpo':'Novo corpo'):(selected?'Info do corpo':'');
+  syncFollowUI();
+}
+function closeSide(){
+  if(cfg) closeCfg();
+  else{selected=null;showSide()}
+}
+$('btn-close-side').onclick=()=>closeSide();
+function openCfg(x,y,ref){
+  if(bodies.length>=5) return flash('Limite: 5 corpos simultâneos.');
+  wasRun=running;setRun(false);
+  if(x===undefined){
+    if(!bodies.length){x=0;y=0}
+    else{
+      const h=bodies.reduce((a,b)=>b.m>a.m?b:a);
+      x=h.x+cam.s*Math.min(W,H)*.28;y=h.y;ref=h;
+    }
+  }
+  cfg={
+    m:bodies.length?5.972e24:MSUN,
+    v:0,dir:90,x,y,compact:false,auto:true,
+    ref:ref||pull(x,y),
+    editTarget:null
+  };
+  selected=null;
+  $('cfg-title').textContent='Novo corpo';
+  $('ok').textContent='Adicionar à simulação';
+  $('nm').value='';$('nm').placeholder='Automático: '+autoName().nm;hideNameErr();
+  showSide();syncHint();upd();
+}
+
+function openEdit(b){
+  if(!b) return;
+  wasRun=running;setRun(false);
+  const ref=dominant(b);
+  let v=0,dir=90;
+  if(ref){
+    const rx=b.x-ref.x,ry=b.y-ref.y;
+    const rvx=b.vx-ref.vx,rvy=b.vy-ref.vy;
+    v=Math.hypot(rvx,rvy);
+    dir=dirFromVel(rx,ry,rvx,rvy);
+  }else{
+    v=Math.hypot(b.vx,b.vy);
+    dir=Math.atan2(b.vy,b.vx)*180/Math.PI;
+    if(dir<0) dir+=360;
+  }
+  cfg={
+    m:b.m,v,dir,x:b.x,y:b.y,
+    compact:!!b.compact,auto:false,
+    ref:ref||pull(b.x,b.y),
+    editTarget:b
+  };
+  selected=null;
+  focusOn(b); // mantém a câmera no corpo sendo editado
+  $('cfg-title').textContent='Editar '+b.name;
+  $('ok').textContent='Salvar alterações';
+  $('nm').value=b.name;$('nm').placeholder=b.name;hideNameErr();
+  showSide();syncHint();upd();
+}
+
+function closeCfg(){cfg=null;pv=null;pv2=null;showSide();syncHint()}
+function setPos(x,y,ref){cfg.x=x;cfg.y=y;cfg.ref=ref||pull(x,y);upd()}
+
+let updQ=0,updSkip='';
+/** Entradas contínuas (sliders/teclas) agrupam o recálculo pesado em 1 por frame. */
+function updSoon(skip){
+  updSkip=skip;
+  if(!updQ) updQ=requestAnimationFrame(()=>{updQ=0;upd(updSkip)});
+}
+function upd(skip){
+  const c=cfg;if(!c) return;
+  if(updQ){cancelAnimationFrame(updQ);updQ=0}
+  if(c.ref&&!bodies.includes(c.ref)) c.ref=pull(c.x,c.y); // referência pode ter sido removida/fundida
+  c.R=radiusOf(c);
+  const ref=c.ref;
+  let vx=0,vy=0,A=null,vc=0,multi=false;
+
+  if(ref){
+    const dx=c.x-ref.x,dy=c.y-ref.y,d=Math.hypot(dx,dy)||1;
+    const ux=dx/d,uy=dy/d;
+    vc=Math.sqrt(G*(ref.m+c.m)/d);
+    if(c.auto){c.v=vc;c.dir=90}
+    const f=c.dir*Math.PI/180,co=Math.cos(f),si=Math.sin(f);
+    vx=c.v*(co*ux-si*uy);
+    vy=c.v*(co*uy+si*ux);
+    c.avx=ref.vx+vx;c.avy=ref.vy+vy;
+    A=analyze(dx,dy,vx,vy,ref.m,c.m,ref.R+c.R);
+    multi=multiBodyPerturbation(ref,c.x,c.y,c.m);
+  }else{
+    const f=c.dir*Math.PI/180;
+    c.avx=c.v*Math.cos(f);c.avy=c.v*Math.sin(f);
+  }
+  c.vc=vc;
+
+  const set=(id,v)=>{if(id!==skip)$(id).value=v};
+  set('m',c.m.toExponential(3).replace('e+','e'));
+  set('lm',Math.log10(Math.max(c.m,1e-30)));
+  set('v',+c.v.toPrecision(6));
+  set('vk',vc?c.v/vc:0);
+  set('dir',+c.dir.toFixed(1));
+  set('dr',((c.dir%360)+360)%360);
+  set('px',+(c.x/1e3).toPrecision(6));
+  set('py',+(c.y/1e3).toPrecision(6));
+
+  $('mc').textContent=classify(c.m)+(c.bh?' · ⚫ buraco negro (rₛ = '+fdist(rsOf(c.m))+') — representação artística; dinâmica Newtoniana':'');
+  $('cp').disabled=c.m<3*MSUN;
+  if(c.m<3*MSUN){c.compact=false;$('cp').checked=false}
+  $('vk').disabled=!ref;
+  $('dl').textContent=ref
+    ?`Direção (°) — 0° afasta-se de ${ref.name}, 90° = tangencial anti-horário`
+    :'Direção (°) — medida a partir do eixo +x';
+
+  let t='Sem outros corpos: movimento retilíneo uniforme.',cl='mu',hit=null;
+  pv=null;pv2=null;
+
+  if(ref&&A){
+    const horizon=A.eps<0?1.08*A.T:Math.min(6*A.r/Math.max(A.v,1e-9),A.r*80/Math.max(A.v,1e-9));
+
+    // --- Simulação N-corpos (trajetória real) ---
+    const sim=bodies.map(b=>{
+      if(c.editTarget===b) return {x:c.x,y:c.y,vx:c.avx,vy:c.avy,m:c.m,R:c.R};
+      return {x:b.x,y:b.y,vx:b.vx,vy:b.vy,m:b.m,R:b.R};
+    });
+    if(!c.editTarget) sim.push({x:c.x,y:c.y,vx:c.avx,vy:c.avy,m:c.m,R:c.R});
+    let cdIdx=sim.length-1;
+    if(c.editTarget){
+      cdIdx=bodies.indexOf(c.editTarget);
+      if(cdIdx<0) cdIdx=sim.length-1;
+    }
+    const target=sim[cdIdx],ri=bodies.indexOf(ref),S=horizon/650;
+    Phys.acc(sim);
+    // amostras em instantes exatos; guarda também a posição do dominante (N-corpos) em cada amostra
+    const pts=[target.x,target.y],dom=[],rel=[];
+    const keep=()=>{if(ri>=0){const R=sim[ri];dom.push(R.x,R.y);rel.push(target.x-R.x,target.y-R.y)}};
+    keep();
+    let tt=0,n=0,nx=S;
+    const maxSteps=25000;
+    while(tt<horizon&&n++<maxSteps){
+      const dt=Math.min(Phys.dt(sim),horizon-tt,nx-tt);
+      Phys.step(sim,dt);tt+=dt;
+      if(tt>=nx-1e-9*S){pts.push(target.x,target.y);keep();nx+=S}
+      for(let k=0;k<sim.length;k++){
+        if(k===cdIdx) continue;
+        if(Math.hypot(target.x-sim[k].x,target.y-sim[k].y)<target.R+sim[k].R){
+          hit=bodies[k]||null;break;
+        }
+      }
+      if(hit!==null) break;
+    }
+    pts.push(target.x,target.y);
+
+    // --- Referência de 2 corpos (dominante + alvo), nos mesmos instantes ---
+    // Desvio medido no referencial do dominante: isola o efeito dos demais corpos
+    // (o movimento do próprio dominante não entra como "desvio").
+    let pts2=null, maxDev=0;
+    if(bodies.length>1&&ri>=0){
+      const sim2=[
+        {x:ref.x,y:ref.y,vx:ref.vx,vy:ref.vy,m:ref.m,R:ref.R},
+        {x:c.x,y:c.y,vx:c.avx,vy:c.avy,m:c.m,R:c.R}
+      ];
+      Phys.acc(sim2);
+      const rr=[sim2[1].x-sim2[0].x,sim2[1].y-sim2[0].y];
+      let t2=0,m2=0,x2=S;
+      while(t2<horizon&&m2++<maxSteps){
+        const dt=Math.min(Phys.dt(sim2),horizon-t2,x2-t2);
+        Phys.step(sim2,dt);t2+=dt;
+        if(t2>=x2-1e-9*S){rr.push(sim2[1].x-sim2[0].x,sim2[1].y-sim2[0].y);x2+=S}
+      }
+      const len=Math.min(rr.length,rel.length,dom.length);
+      pts2=[];
+      for(let i=0;i<len;i+=2){
+        pts2.push(dom[i]+rr[i],dom[i+1]+rr[i+1]); // desenhada junto ao dominante N-corpos
+        const d=Math.hypot(rel[i]-rr[i],rel[i+1]-rr[i+1]);
+        if(d>maxDev) maxDev=d;
+      }
+    }
+
+    let s;
+    if(hit!==null){
+      s={t:'🔴 Colisão prevista com '+esc(hit.name||'outro corpo'),c:'no'};
+    }else if(multi&&A.key!=='col'){
+      const base=stateTxt(A,true);
+      s={t:base.t,c:base.c};
+    }else{
+      s=stateTxt(A,false);
+    }
+    t=s.t;cl=s.c;
+    pv={pts,col:{ok:'#4ade80',wa:'#facc15',no:'#f87171',mu:'#a0aec0'}[cl]||'#a0aec0'};
+    if(pts2) pv2={pts:pts2,col:'rgba(160,180,210,.55)'};
+
+    // Influência gravitacional (usando posição atual do cfg)
+    let inflHtml='';
+    if(bodies.length>1){
+      const I=gravInfluence(c.x,c.y,c.editTarget,ref);
+      inflHtml=`
+        <br><b>Influência gravitacional instantânea</b><br>
+        Corpo dominante (${esc(ref.name)}): <b>${pct(I.pctDom)} %</b><br>
+        Demais corpos combinados: <b>${pct(I.pctOther)} %</b>
+        <small class="mu"><br>O dominante é o que exerce a maior atração; todos os corpos continuam a atrair.</small>
+      `;
+    }
+
+    const distStr=fdist(A.r);
+    let devHtml='';
+    if(maxDev>0){
+      devHtml=`<br><b>Desvio da trajetória N-corpos vs. 2-corpos:</b> ${fdist(maxDev)}
+        <small class="mu"><br>Diferença máxima entre a simulação completa e a aproximação considerando apenas ${esc(ref.name)}.</small>`;
+    }
+
+    $('analysis-box').innerHTML=`
+      <b>Parâmetros orbitais osculantes</b>
+      <small class="mu"> (aproximação de dois corpos em relação a ${esc(ref.name)})</small><br>
+      Corpo dominante: <b>${esc(ref.name)}</b><br>
+      Distância: ${distStr}<br>
+      Massa: ${sci(c.m)} kg<br>
+      Velocidade relativa: ${sci(c.v,0)} m/s<br>
+      Direção: ${(+c.dir.toFixed(1))}°<br>
+      Velocidade circular (2 corpos): ${sci(vc,0)} m/s<br>
+      Velocidade de escape (2 corpos): ${sci(A.vesc,0)} m/s<br>
+      Energia específica ε: ${sci(A.eps,3)} J/kg<br>
+      Excentricidade e: ${A.e.toFixed(3).replace('.',',')}<br>
+      ${multi||bodies.length>1?'<small class="mu">A trajetória real é calculada pela simulação N-corpos (todos os corpos interagem). Os valores acima são elementos osculantes instantâneos.</small>':''}
+      ${inflHtml}
+      ${devHtml}
+    `;
+
+    $('rec').innerHTML=`
+      <b>Para uma trajetória aproximadamente circular (osculante):</b><br>
+      Velocidade recomendada: <b>${sci(vc,0)} m/s</b><br>
+      Direção recomendada: <b>tangencial (90°)</b><br>
+      <small class="mu">Aproximação de dois corpos em relação a ${esc(ref.name)}. Os demais corpos perturbam a trajetória real.</small><br>
+      <button id="ur" type="button" style="margin-top:8px">Usar recomendação</button>
+    `;
+  }else{
+    $('analysis-box').innerHTML='<b>Análise da trajetória</b><br>Nenhum corpo de referência. O movimento será retilíneo uniforme.';
+    $('rec').textContent=c.editTarget?'Sem corpo dominante para recomendar velocidade.':'Primeiro corpo: sem referência para recomendar velocidade.';
+  }
+  $('st').innerHTML=`<span class="${cl}">Resultado: ${t}</span>`;
+}
+
+const edit=(id,fn)=>$(id).addEventListener('input',e=>{
+  if(!cfg) return;
+  const v=id==='cp'?e.target.checked:num(e.target.value);
+  if(id==='cp'||isFinite(v)){
+    fn(v);
+    updSoon(id==='m'||id==='v'||id==='dir'||id==='px'||id==='py'?id:'');
+  }
+});
+edit('m',v=>{if(v>0)cfg.m=v});
+edit('lm',v=>cfg.m=10**v);
+edit('cp',v=>cfg.compact=v);
+edit('v',v=>{cfg.v=Math.max(0,v);cfg.auto=false});
+edit('vk',v=>{cfg.v=v*(cfg.vc||0);cfg.auto=false});
+edit('dir',v=>{cfg.dir=v;cfg.auto=false});
+edit('dr',v=>{cfg.dir=v;cfg.auto=false});
+edit('px',v=>{cfg.x=v*1e3;cfg.ref=pull(cfg.x,cfg.y)});
+edit('py',v=>{cfg.y=v*1e3;cfg.ref=pull(cfg.x,cfg.y)});
+
+$('lib').innerHTML='<option value="">Referências de massa…</option>'+
+  LIB.map((o,i)=>`<option value="${i}">${o[1]} ${o[0]} (${sci(o[2])} kg)</option>`).join('');
+$('lib').onchange=e=>{
+  if(e.target.value!==''&&cfg){cfg.m=LIB[+e.target.value][2];e.target.value='';upd()}
+};
+$('rec').onclick=e=>{if(e.target.id==='ur'){cfg.auto=true;upd()}};
+
+$('ok').onclick=()=>{
+  if(!cfg) return;
+  // Nome: vazio/só espaços → automático (ou o atual, ao editar); repetido → pede outro
+  const nm=cleanName($('nm').value);
+  if(nm&&nameTaken(nm,cfg.editTarget)) return showNameErr('Já existe um corpo chamado “'+nm+'”. Escolha outro nome.');
+  hideNameErr();
+  upd();
+  const c=cfg;
+  if(c.editTarget){
+    const t=c.editTarget;
+    t.m=c.m;t.x=c.x;t.y=c.y;t.vx=c.avx;t.vy=c.avy;t.compact=c.compact;
+    if(nm) t.name=nm;
+    t.R=radiusOf(t);t.pts=null;
+    t.tn=0;t.th=0;
+    Phys.acc(bodies);snapshot();
+    closeCfg();setRun(wasRun);
+    selected=t;showSide();updInfo();
+  }else{
+    let name=nm;
+    if(!name){const a=autoName();name=a.nm;cnt=a.n}
+    bodies.push(makeBody({
+      name,
+      m:c.m,x:c.x,y:c.y,vx:c.avx,vy:c.avy,compact:c.compact
+    }));
+    Phys.acc(bodies);snapshot();closeCfg();setRun(wasRun);
+    if(bodies.length===1){cam.x=bodies[0].x;cam.y=bodies[0].y}
+  }
+};
+$('cn').onclick=()=>{closeCfg();setRun(wasRun)};
+$('rm').onclick=()=>{
+  const gone=selected;
+  bodies=bodies.filter(b=>b!==gone);selected=null;
+  if(follow===gone) releaseFollow('removed');
+  Phys.acc(bodies);snapshot();showSide();syncHint();
+};
+$('ed').onclick=()=>{if(selected) openEdit(selected)};
+$('overlay').onclick=()=>closeSide();
+$('side-handle').onclick=()=>closeSide();
+
+let infoMain='',infoAdv='';
+/** Força que cada outro corpo exerce sobre b. Mesma expressão de Phys.acc:
+ *  |F| = G·m₁·m₂·|d| / (d² + ε)^(3/2). Só leitura; não altera a simulação. */
+function forcesOn(b){
+  const out=[];
+  for(const o of bodies){
+    if(o===b) continue;
+    const dx=o.x-b.x,dy=o.y-b.y,d=Math.hypot(dx,dy),d2=dx*dx+dy*dy+1e-6;
+    out.push({o,d,F:G*b.m*o.m*d/(d2*Math.sqrt(d2))});
+  }
+  return out.sort((p,q)=>q.F-p.F);
+}
+function updInfo(){
+  const b=selected;if(!b||cfg) return;
+  $('iname').textContent=b.name;
+  // Aceleração já calculada por Phys.acc (N-corpos) → força resultante F = m·a
+  const a=Math.hypot(b.ax,b.ay),Ftot=a*b.m,v=Math.hypot(b.vx,b.vy);
+  const fl=forcesOn(b),sumF=fl.reduce((t,q)=>t+q.F,0);
+  const kv=(k,val,hint)=>`<div class="kv"><div class="k">${k}</div><div class="v">${val}</div>${hint?`<small class="mu">${hint}</small>`:''}</div>`;
+
+  // --- Identificação ---
+  const type=b.bh?'Buraco negro':(kindOf(b.m)===4?'Estrela':'');
+  const typeHint=b.bh?`rₛ = ${fdist(rsOf(b.m))} — representação artística; dinâmica Newtoniana.`:(type?'Classificado pela massa (≥ 10²⁹ kg).':'');
+  let h=`<div class="sec"><div class="sec-t">Identificação</div>
+    ${kv('Nome',esc(b.name))}
+    ${type?kv('Tipo',type,typeHint):''}
+    ${kv('Comparação de massa',classify(b.m))}
+  </div>`;
+
+  // --- Propriedades físicas ---
+  h+=`<div class="sec"><div class="sec-t">Propriedades físicas</div>
+    ${kv('Massa',sci(b.m)+' kg','O que significa: a quantidade de matéria do corpo. Não depende dos outros corpos.')}
+    ${kv('Posição',`x = ${sci(b.x/1e3)} km<br>y = ${sci(b.y/1e3)} km`,'Coordenadas no plano da simulação (origem em 0, 0).')}
+    ${kv('Velocidade',sci(v/1e3)+' km/s','O que significa: a rapidez com que o corpo se move agora, em relação à origem da simulação.')}
+    ${kv('Força gravitacional resultante',sci(Ftot)+' N',fl.length
+      ?'O que significa: a força total que os outros corpos exercem sobre este (soma levando em conta a direção de cada atração). Muda quando os corpos se movem.'
+      :'Não há outros corpos na simulação, então nenhuma força gravitacional atua sobre este.')}
+  </div>`;
+
+  // --- Contribuição de cada corpo ---
+  if(fl.length){
+    h+=`<div class="sec"><div class="sec-t">Quem puxa este corpo</div>`+
+      fl.map(q=>`<div class="fr"><span>${esc(q.o.name)} <small class="mu">a ${fdist(q.d)}</small></span><b>${sci(q.F)} N${fl.length>1&&sumF>0?` <small class="mu">(${pct(100*q.F/sumF)} %)</small>`:''}</b></div>`).join('')+
+      `<small class="mu">Cada valor é F = G·m₁·m₂ / r² para o par.${fl.length>1?' A resultante soma as forças como vetores (a direção importa), por isso pode ser menor que a soma dos valores.':''}</small></div>`;
+  }
+
+  // --- Detalhes avançados (conteúdo que já existia) ---
+  const s=dominant(b);
+  let st={t:'⚪ Corpo dominante / isolado do sistema',c:'mu'};
+  let inflHtml='',orbitHtml='';
+  if(s){
+    const dx=b.x-s.x,dy=b.y-s.y;
+    const dist=Math.hypot(dx,dy)||1e-12;
+    const A=analyze(dx,dy,b.vx-s.vx,b.vy-s.vy,s.m,b.m,s.R+b.R);
+    const multi=multiBodyPerturbation(s,b.x,b.y,b.m);
+    st=stateTxt(A,multi);
+    const infl=gravInfluence(b.x,b.y,b,s);
+    const Fnewton=G*b.m*s.m/(dist*dist);
+    orbitHtml=`
+      <b>Corpo de referência (órbita):</b> ${esc(s.name)}<br>
+      <b>Distância até ${esc(s.name)}:</b> ${fdist(dist)}<br>
+      <b>Força de Newton em relação a ${esc(s.name)}:</b><br>
+      F = G·m₁·m₂ / r² = <b>${sci(Fnewton)} N</b>
+      <small class="mu"><br>m₁ = ${sci(b.m)} kg · m₂ = ${sci(s.m)} kg · r = ${fdist(dist)}</small><br>
+    `;
+    inflHtml=`
+      <b>Influência gravitacional instantânea</b><br>
+      Corpo dominante (${esc(s.name)}): <b>${pct(infl.pctDom)} %</b><br>
+      Demais corpos combinados: <b>${pct(infl.pctOther)} %</b>
+      <small class="mu"><br>Todos os corpos exercem gravidade; o dominante é apenas o de maior influência no instante atual.</small><br>
+    `;
+  }
+  const ds=bodies.filter(o=>o!==b).map(o=>`${esc(o.name)}: ${fdist(Math.hypot(o.x-b.x,o.y-b.y))}`).join('<br>')||'—';
+  const adv=`
+    <b>Aceleração:</b> ${sci(a)} m/s²<br>
+    ${b.bh?'⚫ Buraco negro (R ≤ rₛ = '+fdist(rsOf(b.m))+') — representação artística; dinâmica Newtoniana<br>':''}
+    ${orbitHtml}
+    <b>Distâncias:</b><br>${ds}<br>
+    ${inflHtml}
+    <b>Estado${s?' (osculante vs. '+esc(s.name)+')':''}:</b> <span class="${st.c}">${st.t}</span>
+    ${bodies.length>2?'<br><small class="mu">Modelo newtoniano N-corpos: a classificação orbital de dois corpos é uma aproximação osculante.</small>':''}
+  `;
+
+  // Só reescreve o DOM quando algo mudou (mantém <details> abertos e cliques estáveis)
+  if(h!==infoMain){$('i-main').innerHTML=h;infoMain=h}
+  if(adv!==infoAdv){$('adv-body').innerHTML=adv;infoAdv=adv}
+}
+
+/* ===== Canvas e desenho ===== */
+const cv=$('cv'),ctx=cv.getContext('2d'),stars=document.createElement('canvas');
+let W=0,H=0,dpr=1;
+const sx=x=>W/2+(x-cam.x)/cam.s;
+const sy=y=>H/2-(y-cam.y)/cam.s;
+const toW=(px,py)=>({x:cam.x+(px-W/2)*cam.s,y:cam.y-(py-H/2)*cam.s});
+
+function resize(){
+  dpr=Math.min(devicePixelRatio||1,2);
+  W=innerWidth;H=innerHeight;
+  cv.width=W*dpr;cv.height=H*dpr;
+  stars.width=cv.width;stars.height=cv.height;
+  const s=stars.getContext('2d');
+  s.fillStyle='#04060c';s.fillRect(0,0,stars.width,stars.height);
+  for(let i=0;i<(W*H)/2200;i++){
+    s.globalAlpha=.15+Math.random()*.6;
+    s.fillStyle=Math.random()<.2?'#bcd4ff':'#fff';
+    const r=Math.random()<.05?1.4:.7;
+    s.fillRect(Math.random()*stars.width,Math.random()*stars.height,r*dpr,r*dpr);
+  }
+}
+const ZC={r:'rgba(248,113,113,.34)',w:'rgba(255,255,255,.28)',g:'rgba(74,222,128,.38)'};
+
+function drawTrail(b){
+  const n=b.tn;if(n<2) return;
+  ctx.strokeStyle=COL[kindOf(b.m)][0];ctx.lineWidth=1.4;
+  for(let q=0;q<4;q++){
+    ctx.globalAlpha=.1+.2*q;ctx.beginPath();
+    const a=Math.floor(n*q/4),e=Math.min(Math.floor(n*(q+1)/4),n-1);
+    for(let k=a;k<=e;k++){
+      const i=(b.th-n+k+NT)%NT,X=sx(b.tr[2*i]),Y=sy(b.tr[2*i+1]);
+      k===a?ctx.moveTo(X,Y):ctx.lineTo(X,Y);
+    }
+    if(q===3) ctx.lineTo(sx(b.x),sy(b.y));
+    ctx.stroke();
+  }
+  ctx.globalAlpha=1;
+}
+
+/* ===== Buraco negro: renderer próprio (horizonte negro + disco de acreção + halo) ===== */
+const BH_STOPS=[[255,252,235],[255,214,120],[255,146,44],[196,58,16]];
+function bhCol(t,a){
+  t=Math.max(0,Math.min(1,t))*3;
+  const i=Math.min(2,Math.floor(t)),f=t-i,A=BH_STOPS[i],B=BH_STOPS[i+1];
+  return `rgba(${A[0]+(B[0]-A[0])*f|0},${A[1]+(B[1]-A[1])*f|0},${A[2]+(B[2]-A[2])*f|0},${a})`;
+}
+const bhR2D=b=>Math.max(6,visR(b.m)*.75);
+function bhBright(a,t){
+  return Math.max(.14,.62+.3*Math.cos(a-.8)+.22*Math.sin(a*3+t*9)*Math.sin(a*5-t*4));
+}
+const bhEdge=(k,n)=>Math.min(1,(k+.6)/2)*Math.min(1,(n-k)/2.5);
+const bhBase=(t,k,n)=>(.2+.6*Math.pow(1-t,1.3))*bhEdge(k,n);
+function renderBlackHole2D(b,px,py,ghost){
+  const now=performance.now(),rH=bhR2D(b),ri=rH*1.4,ro=rH*3.6;
+  ctx.save();
+  ctx.globalAlpha=ghost?.6:1;
+  const hg=ctx.createRadialGradient(px,py,ri,px,py,ro*1.9);
+  hg.addColorStop(0,'rgba(255,150,50,.16)');
+  hg.addColorStop(.5,'rgba(220,80,20,.06)');
+  hg.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=hg;ctx.beginPath();ctx.arc(px,py,ro*1.9,0,7);ctx.fill();
+  ctx.globalCompositeOperation='lighter';
+  const M=12,bw=(ro-ri)/M;
+  for(let k=0;k<M;k++){
+    const t=(k+.5)/M,r=ri+(k+.5)*bw,base=bhBase(t,k,M);
+    let st;
+    if(ctx.createConicGradient){
+      st=ctx.createConicGradient(now*.0006/Math.pow(1+t*2.2,1.5),px,py);
+      for(let q=0;q<=16;q++)st.addColorStop(q/16,bhCol(t,base*bhBright(q/16*Math.PI*2,t)));
+    }else st=bhCol(t,base*.7);
+    ctx.strokeStyle=st;ctx.lineWidth=bw+1;
+    ctx.beginPath();ctx.arc(px,py,r,0,7);ctx.stroke();
+  }
+  ctx.lineWidth=1.1;
+  for(let i=0;i<70;i++){
+    const t=(i*.6180339)%1,r=ri+(ro-ri)*(.05+.9*t),a=i*2.399+now*.0009/Math.pow(1+t*2.2,1.5);
+    ctx.strokeStyle=bhCol(t,.3+.4*(1-t));
+    ctx.beginPath();ctx.arc(px,py,r,a,a+.06+.1*(1-t));ctx.stroke();
+  }
+  ctx.globalCompositeOperation='source-over';
+  ctx.fillStyle='#000';ctx.beginPath();ctx.arc(px,py,rH,0,7);ctx.fill();
+  ctx.strokeStyle=bhCol(.05,.85);ctx.lineWidth=Math.max(1.2,rH*.07);
+  ctx.beginPath();ctx.arc(px,py,rH*1.05,0,7);ctx.stroke();
+  ctx.restore();
+}
+function renderBlackHole3D(b){
+  const c0=project3d(b.x,b.y,0);if(!c0) return;
+  const mob=isMobile(),now=performance.now();
+  const Rpx=Math.max(6,visR(b.m)*.75);
+  const hw=cam3d.dist*Rpx/(Math.min(W,H)*.55);
+  const ri=1.4*hw,ro=3.6*hw,NA=mob?64:110,NR=mob?6:9,hpx=hw*c0.s;
+  ctx.save();
+  const hg=ctx.createRadialGradient(c0.x,c0.y,hpx*1.4,c0.x,c0.y,hpx*6.8);
+  hg.addColorStop(0,'rgba(255,150,50,.15)');hg.addColorStop(.5,'rgba(220,80,20,.05)');hg.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=hg;ctx.beginPath();ctx.arc(c0.x,c0.y,hpx*6.8,0,7);ctx.fill();
+  const back=[],front=[];
+  for(const zl of [-.05*hw,.05*hw]){
+    const g=[];
+    for(let a=0;a<=NA;a++){
+      const ang=a/NA*Math.PI*2,co=Math.cos(ang),si=Math.sin(ang);
+      for(let k=0;k<=NR;k++){
+        const r=ri+(ro-ri)*k/NR;
+        g.push(project3d(b.x+co*r,b.y+si*r,zl));
+      }
+    }
+    for(let a=0;a<NA;a++){
+      const am=(a+.5)/NA*Math.PI*2;
+      for(let k=0;k<NR;k++){
+        const p0=g[a*(NR+1)+k],p1=g[a*(NR+1)+k+1],p2=g[(a+1)*(NR+1)+k+1],p3=g[(a+1)*(NR+1)+k];
+        if(!p0||!p1||!p2||!p3) continue;
+        const t=(k+.5)/NR,w=now*.0006/Math.pow(1+t*2.2,1.5);
+        const al=bhBase(t,k,NR)*bhBright(am+w,t)*.75;
+        const q={p:[p0,p1,p2,p3],c:bhCol(t,al)};
+        ((p0.z+p2.z)/2>c0.z?back:front).push(q);
+      }
+    }
+  }
+  const paint=L=>{
+    for(const q of L){
+      ctx.fillStyle=ctx.strokeStyle=q.c;ctx.lineWidth=.6;
+      ctx.beginPath();ctx.moveTo(q.p[0].x,q.p[0].y);
+      for(let i=1;i<4;i++)ctx.lineTo(q.p[i].x,q.p[i].y);
+      ctx.closePath();ctx.fill();ctx.stroke();
+    }
+  };
+  ctx.globalCompositeOperation='lighter';
+  paint(back);
+  const inc=Math.sin(cam3d.pitch),la=.85*(1-.8*inc);
+  ctx.lineCap='round';
+  ctx.strokeStyle=bhCol(.08,la);ctx.lineWidth=Math.max(1.5,hpx*.2);
+  ctx.beginPath();ctx.arc(c0.x,c0.y,hpx*1.24,Math.PI*1.05,Math.PI*1.95);ctx.stroke();
+  ctx.strokeStyle=bhCol(.3,la*.45);ctx.lineWidth=Math.max(1,hpx*.12);
+  ctx.beginPath();ctx.arc(c0.x,c0.y,hpx*1.2,Math.PI*.15,Math.PI*.85);ctx.stroke();
+  ctx.lineCap='butt';
+  ctx.globalCompositeOperation='source-over';
+  ctx.fillStyle='#000';ctx.beginPath();ctx.arc(c0.x,c0.y,hpx,0,7);ctx.fill();
+  ctx.strokeStyle=bhCol(.05,.8);ctx.lineWidth=Math.max(1.2,hpx*.06);
+  ctx.beginPath();ctx.arc(c0.x,c0.y,hpx*1.03,0,7);ctx.stroke();
+  ctx.globalCompositeOperation='lighter';
+  paint(front);
+  ctx.globalCompositeOperation='source-over';
+  if(b===selected){
+    ctx.strokeStyle='#fff';ctx.lineWidth=1.2;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.arc(c0.x,c0.y,hpx*3.8+6,0,7);ctx.stroke();ctx.setLineDash([]);
+  }
+  ctx.fillStyle='rgba(200,215,240,.85)';ctx.font='11px sans-serif';
+  ctx.fillText(b.name,c0.x+hpx*2.6,c0.y-hpx*2.2);
+  ctx.restore();
+}
+
+/** Corpo 2D com aparência de volume (iluminação + textura sutil). */
+function drawBody2D(b,px,py,ghost){
+  const r=visR(b.m),k=kindOf(b.m);
+  ctx.globalAlpha=ghost?.55:1;
+
+  if(b.bh){
+    renderBlackHole2D(b,px,py,ghost);
+  }else{
+    // Coroa / brilho extra para estrelas (e acima)
+    if(k===4){
+      // Halo externo amplo
+      const g0=ctx.createRadialGradient(px,py,r*0.3,px,py,r*5.5);
+      g0.addColorStop(0,'rgba(255,240,180,.55)');
+      g0.addColorStop(0.25,'rgba(255,200,80,.28)');
+      g0.addColorStop(0.55,'rgba(255,140,30,.12)');
+      g0.addColorStop(1,'rgba(255,100,20,0)');
+      ctx.fillStyle=g0;ctx.beginPath();ctx.arc(px,py,r*5.5,0,7);ctx.fill();
+      // Anéis de difração suaves
+      ctx.strokeStyle='rgba(255,220,120,.18)';
+      ctx.lineWidth=1.2;
+      ctx.beginPath();ctx.arc(px,py,r*2.2,0,7);ctx.stroke();
+      ctx.strokeStyle='rgba(255,200,100,.12)';
+      ctx.beginPath();ctx.arc(px,py,r*3.4,0,7);ctx.stroke();
+    }
+    // Corpo principal com iluminação (luz vinda do canto superior esquerdo)
+    const lx=px-r*0.38, ly=py-r*0.38;
+    const g=ctx.createRadialGradient(lx,ly,r*0.05,px,py,r);
+    if(k===4){
+      g.addColorStop(0,'#fff8e0');
+      g.addColorStop(0.35,COL[k][0]);
+      g.addColorStop(0.7,COL[k][1]);
+      g.addColorStop(1,'#3a2208');
+    }else{
+      g.addColorStop(0,COL[k][0]);
+      g.addColorStop(0.55,COL[k][1]);
+      g.addColorStop(1,'#0a0c12');
+    }
+    ctx.fillStyle=g;
+    ctx.beginPath();ctx.arc(px,py,r,0,7);ctx.fill();
+
+    // Highlight especular (mais forte em estrelas)
+    const hl=ctx.createRadialGradient(lx,ly,0,lx,ly,r*(k===4?0.7:0.55));
+    hl.addColorStop(0,k===4?'rgba(255,255,255,.7)':'rgba(255,255,255,.35)');
+    hl.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle=hl;
+    ctx.beginPath();ctx.arc(px,py,r,0,7);ctx.fill();
+
+    // Textura sutil (pequenos pontos de superfície)
+    if(r>6&&!ghost){
+      ctx.save();
+      ctx.beginPath();ctx.arc(px,py,r,0,7);ctx.clip();
+      const n=Math.min(18,Math.floor(r*0.9));
+      for(let i=0;i<n;i++){
+        const ang=i*2.4+b.m*1e-30;
+        const rr=r*(0.25+0.65*((i*7)%10)/10);
+        const tx=px+Math.cos(ang)*rr, ty=py+Math.sin(ang)*rr;
+        ctx.globalAlpha=0.08+0.1*((i*3)%5)/5;
+        ctx.fillStyle=i%3===0?'#fff':'#000';
+        ctx.beginPath();ctx.arc(tx,ty,0.6+r*0.03,0,7);ctx.fill();
+      }
+      ctx.restore();
+      ctx.globalAlpha=ghost?.55:1;
+    }
+  }
+  ctx.globalAlpha=1;
+}
+
+/* ===== Geração de nuvem de pontos para modo 3D ===== */
+/** Esfera de Fibonacci (distribuição uniforme na superfície). */
+function fibSphere(n, radius){
+  const pts=[];
+  const golden=Math.PI*(3-Math.sqrt(5));
+  for(let i=0;i<n;i++){
+    const y=1-(i/(n-1||1))*2;           // -1 … +1
+    const r=Math.sqrt(Math.max(0,1-y*y));
+    const th=golden*i;
+    const x=Math.cos(th)*r;
+    const z=Math.sin(th)*r;
+    pts.push({x:x*radius, y:y*radius, z:z*radius});
+  }
+  return pts;
+}
+
+function genPoints(b){
+  if(b.pts) return b.pts;
+  // Buraco negro: renderer próprio — sem nuvem de pontos
+  if(b.bh){ b.pts=[]; return b.pts; }
+  const k=kindOf(b.m);
+  // Em mobile, menos pontos para manter fluidez no 3D
+  const mobile=typeof isMobile==='function'&&isMobile();
+  const maxPts=mobile?140:280;
+  const minPts=mobile?50:80;
+  // Quantidade de pontos: mais densos para corpos maiores/visíveis
+  const baseN=Math.max(minPts,Math.min(maxPts,Math.floor(visR(b.m)*(mobile?6:9))));
+  const pts=[];
+  const isStar=k===4;
+
+  // 3 camadas concêntricas → sensação de volume sólido
+  const shells=[
+    {n:Math.floor(baseN*0.55), r:1.00},   // superfície
+    {n:Math.floor(baseN*0.28), r:0.72},   // meio
+    {n:Math.floor(baseN*0.17), r:0.40}    // núcleo
+  ];
+  for(const sh of shells){
+    const layer=fibSphere(sh.n, sh.r);
+    for(const p of layer){
+      const j=0.04;
+      pts.push({
+        x:p.x+(Math.random()-0.5)*j,
+        y:p.y+(Math.random()-0.5)*j,
+        z:p.z+(Math.random()-0.5)*j,
+        br:isStar?(0.7+0.3*Math.random()):(0.45+0.55*Math.random()),
+        sz:isStar?(0.7+Math.random()*1.2):(0.55+Math.random()*0.9),
+        nx:p.x, ny:p.y, nz:p.z,
+        star:isStar
+      });
+    }
+  }
+  // Coroa de brilho para estrelas (pontos externos difusos)
+  if(isStar){
+    const glowN=mobile?30:55;
+    for(let i=0;i<glowN;i++){
+      let x,y,z,d2;
+      do{x=Math.random()*2-1;y=Math.random()*2-1;z=Math.random()*2-1;d2=x*x+y*y+z*z;}while(d2>1||d2<0.2);
+      const inv=1/Math.sqrt(d2);
+      const rad=1.15+Math.random()*0.95;
+      pts.push({
+        x:x*inv*rad, y:y*inv*rad, z:z*inv*rad,
+        br:0.35+0.4*Math.random(), sz:0.9+Math.random()*1.6,
+        nx:x*inv, ny:y*inv, nz:z*inv,
+        glow:true, star:true
+      });
+    }
+  }
+
+  b.pts=pts;
+  return pts;
+}
+
+/** Projeção 3D → tela (câmera orbital, worldUp = +Z). */
+const CB={k:'',cx:0,cy:0,cz:0,fx:0,fy:0,fz:0,rx:0,ry:0,rz:0,ux:0,uy:0,uz:0,fov:1};
+function prep3d(){
+  const k=cam3d.yaw+'|'+cam3d.pitch+'|'+cam3d.dist+'|'+cam3d.targetX+'|'+cam3d.targetY+'|'+cam3d.targetZ+'|'+W+'|'+H;
+  if(k===CB.k) return;
+  CB.k=k;
+  const cy=Math.cos(cam3d.yaw),sy=Math.sin(cam3d.yaw),cp=Math.cos(cam3d.pitch),sp=Math.sin(cam3d.pitch);
+  CB.cx=cam3d.targetX+cam3d.dist*sy*cp;
+  CB.cy=cam3d.targetY+cam3d.dist*cy*cp;
+  CB.cz=cam3d.targetZ+cam3d.dist*sp;
+  const fl=Math.hypot(cam3d.targetX-CB.cx,cam3d.targetY-CB.cy,cam3d.targetZ-CB.cz)||1;
+  const fx=(cam3d.targetX-CB.cx)/fl,fy=(cam3d.targetY-CB.cy)/fl,fz=(cam3d.targetZ-CB.cz)/fl;
+  // right = forward × worldUp(0,0,1)
+  let rx=fy,ry=-fx,rz=0,rl=Math.hypot(rx,ry,rz);
+  if(rl<1e-8){rx=0;ry=1;rz=0;rl=1}
+  rx/=rl;ry/=rl;rz/=rl;
+  CB.fx=fx;CB.fy=fy;CB.fz=fz;CB.rx=rx;CB.ry=ry;CB.rz=rz;
+  CB.ux=ry*fz-rz*fy;CB.uy=rz*fx-rx*fz;CB.uz=rx*fy-ry*fx;
+  CB.fov=Math.min(W,H)*FOV_K;
+}
+/** Projeção 3D → tela (câmera orbital, worldUp = +Z). Visualização apenas; não afeta a física. */
+function project3d(wx,wy,wz){
+  prep3d();
+  const dx=wx-CB.cx,dy=wy-CB.cy,dz=wz-CB.cz;
+  const pz=dx*CB.fx+dy*CB.fy+dz*CB.fz;
+  if(pz<=1e-6) return null;
+  const sc=CB.fov/pz;
+  return {x:W/2+(dx*CB.rx+dy*CB.ry+dz*CB.rz)*sc,y:H/2-(dx*CB.ux+dy*CB.uy+dz*CB.uz)*sc,z:pz,s:sc};
+}
+
+/** Corpos em 3D: nuvem de pontos montada como "impostor esférico".
+ *  O CENTRO do corpo é projetado em perspectiva (posição, profundidade e tamanho aparente).
+ *  Os PONTOS são distribuídos em torno desse centro com a base da câmera (direita, cima, frente),
+ *  com a perspectiva relativa à profundidade do próprio corpo. Assim a silhueta é sempre circular.
+ *  Antes, cada ponto era projetado sozinho com um campo de visão muito aberto (≈ 84°): fora do
+ *  centro da tela a esfera era esticada radialmente (distorção de lente), e o formato mudava
+ *  conforme a câmera girava e o corpo passava de um lugar da tela para outro.
+ *  O buraco negro segue em renderBlackHole3D, sem alterações. */
+function drawBody3D(b){
+  // Caminho dedicado para buraco negro (renderer próprio)
+  if(b.bh){ renderBlackHole3D(b); return; }
+
+  const c0=project3d(b.x,b.y,0);           // também prepara a base da câmera em CB
+  if(!c0) return;
+  const pts=genPoints(b);
+  const k=kindOf(b.m);
+  const colHi=COL[k][0], colLo=COL[k][1];
+  const angPx=visR(b.m);
+  const worldR=cam3d.dist * (angPx / Math.min(W,H)) * 1.15;   // raio de referência (igual ao anterior)
+  const Rpx=worldR*c0.s;                                        // raio aparente em px, na profundidade do corpo
+  const unit=Rpx/(1.15*FOV_K);                                  // = angPx quando o corpo está no alvo da câmera
+
+  const lightDir={x:0.45, y:0.25, z:0.85};
+  const ll=Math.hypot(lightDir.x,lightDir.y,lightDir.z);
+  lightDir.x/=ll; lightDir.y/=ll; lightDir.z/=ll;
+
+  const projected=[];
+  for(const p of pts){
+    const sr=p.x*CB.rx+p.y*CB.ry+p.z*CB.rz;   // componente para a direita da tela
+    const su=p.x*CB.ux+p.y*CB.uy+p.z*CB.uz;   // componente para cima
+    const sd=p.x*CB.fx+p.y*CB.fy+p.z*CB.fz;   // profundidade relativa (+ = mais longe da câmera)
+    const den=c0.z+sd*worldR;
+    if(den<=c0.z*0.25) continue;               // ponto praticamente no plano da câmera
+    const kz=c0.z/den;                         // perspectiva relativa ao centro do corpo
+    projected.push({X:c0.x+sr*Rpx*kz, Y:c0.y-su*Rpx*kz, sd, kz, p});
+  }
+  projected.sort((a,c)=>c.sd-a.sd);            // pontos mais distantes primeiro
+
+  const rH=parseInt(colHi.slice(1,3),16), gH=parseInt(colHi.slice(3,5),16), bH=parseInt(colHi.slice(5,7),16);
+  const rL=parseInt(colLo.slice(1,3),16), gL=parseInt(colLo.slice(3,5),16), bL=parseInt(colLo.slice(5,7),16);
+
+  for(const {X,Y,sd,kz,p} of projected){
+    const size=Math.max(0.6, Math.min(3.4, p.sz * (unit/18) * 1.1 * kz));
+    let col;
+    const nx=p.nx||p.x, ny=p.ny||p.y, nz=p.nz||p.z;
+    const nl=Math.hypot(nx,ny,nz)||1;
+    const ndot=Math.max(0,(nx/nl)*lightDir.x+(ny/nl)*lightDir.y+(nz/nl)*lightDir.z);
+    const isStar=!!p.star||k===4;
+    const amb=isStar?0.45:0.22;
+    const dc=0.72+0.28*(0.5-0.5*Math.max(-1,Math.min(1,sd)));   // pontos do lado de trás um pouco mais escuros
+    const light=(amb+(1-amb)*ndot)*dc;
+    if(p.glow){
+      const alpha=(0.12+0.22*p.br)*dc;
+      col=`rgba(255,${Math.floor(210+30*p.br)},${Math.floor(120+40*p.br)},${alpha})`;
+    }else if(isStar){
+      const t=0.5+0.5*ndot;
+      const rr=Math.min(255,Math.floor((255*t+rL*(1-t))*light));
+      const gg=Math.min(255,Math.floor((240*t+gL*(1-t))*light));
+      const bb=Math.min(255,Math.floor((180*t+bL*(1-t))*light*0.95));
+      col=`rgba(${rr},${gg},${bb},${0.75+0.25*p.br})`;
+    }else{
+      const t=0.35+0.65*ndot;
+      const rr=Math.min(255,Math.floor((rH*t+rL*(1-t))*light*p.br));
+      const gg=Math.min(255,Math.floor((gH*t+gL*(1-t))*light*p.br));
+      const bb=Math.min(255,Math.floor((bH*t+bL*(1-t))*light*p.br));
+      col=`rgba(${rr},${gg},${bb},${0.65+0.35*p.br})`;
+    }
+    const finalSize=p.glow?size*1.35:size;
+    ctx.fillStyle=col;
+    ctx.beginPath();
+    ctx.arc(X, Y, finalSize, 0, 7);
+    ctx.fill();
+  }
+
+  if(b===selected){
+    ctx.strokeStyle='#fff';ctx.lineWidth=1.2;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.arc(c0.x,c0.y,Rpx*1.25+6,0,7);ctx.stroke();ctx.setLineDash([]);
+  }
+  ctx.fillStyle='rgba(200,215,240,.85)';
+  ctx.font='11px sans-serif';
+  ctx.fillText(b.name, c0.x+Rpx*0.55, c0.y-Rpx*0.7);
+}
+
+/* ===== Culling 3D =====
+ * Só pula o DESENHO de corpos/trilhas totalmente fora da tela; a física, a seleção e o
+ * acompanhamento da câmera não passam por aqui. Os testes são conservadores (incluem halo,
+ * anel de seleção e rótulo), então a imagem é idêntica à sem culling. */
+let cull3d=true;
+const cullStat={drawn:0,skipped:0};
+/** Raio (px) máximo que o desenho do corpo pode ocupar em volta do centro projetado c0. */
+function bodyReach3D(b,c0){
+  const mn=Math.min(W,H);
+  if(b.bh){ // halo de 6,8·rₕ; 7,5 cobre o anel visto em perspectiva
+    const Rpx=Math.max(6,visR(b.m)*.75),hw=cam3d.dist*Rpx/(mn*FOV_K);
+    return hw*c0.s*7.5+90;
+  }
+  const worldR=cam3d.dist*(visR(b.m)/mn)*1.15;
+  const km=worldR<0.75*c0.z?c0.z/(c0.z-worldR):4;   // ampliação máxima da perspectiva dentro do corpo
+  return worldR*c0.s*2.1*km+90;                     // 2,1 = raio da coroa das estrelas; +90 px de rótulo
+}
+const inView3D=(c0,r)=>c0.x>=-r&&c0.x<=W+r&&c0.y>=-r&&c0.y<=H+r;
+/** Trilha: projeta os 4 cantos da caixa envolvente (plano z=0). Se todos estão à frente da câmera
+ *  e do mesmo lado de fora da tela, nenhum ponto da trilha pode aparecer. */
+function trailInView3D(b){
+  const n=b.tn;if(n<2) return false;
+  let x0=b.x,x1=b.x,y0=b.y,y1=b.y;
+  for(let k=0;k<n;k++){
+    const i=(b.th-n+k+NT)%NT,x=b.tr[2*i],y=b.tr[2*i+1];
+    if(x<x0)x0=x;else if(x>x1)x1=x;
+    if(y<y0)y0=y;else if(y>y1)y1=y;
+  }
+  let L=0,R=0,T=0,B=0;
+  for(const [cx,cy] of [[x0,y0],[x1,y0],[x0,y1],[x1,y1]]){
+    const q=project3d(cx,cy,0);
+    if(!q) return true;                 // algum canto atrás da câmera: não dá para garantir
+    if(q.x<-4)L++;if(q.x>W+4)R++;if(q.y<-4)T++;if(q.y>H+4)B++;
+  }
+  return !(L===4||R===4||T===4||B===4);
+}
+
+function drawTrail3D(b){
+  const n=b.tn;if(n<2) return;
+  ctx.strokeStyle=COL[kindOf(b.m)][0];
+  ctx.lineWidth=1.3;
+  ctx.globalAlpha=0.55;
+  ctx.beginPath();
+  let started=false;
+  for(let k=0;k<n;k++){
+    const i=(b.th-n+k+NT)%NT;
+    const pr=project3d(b.tr[2*i],b.tr[2*i+1],0);
+    if(!pr){started=false;continue;}
+    if(!started){ctx.moveTo(pr.x,pr.y);started=true;}
+    else ctx.lineTo(pr.x,pr.y);
+  }
+  const last=project3d(b.x,b.y,0);
+  if(last&&started) ctx.lineTo(last.x,last.y);
+  ctx.stroke();
+  ctx.globalAlpha=1;
+}
+
+function draw(){
+  ctx.setTransform(1,0,0,1,0,0);ctx.drawImage(stars,0,0);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+
+  // Acompanhamento: ajusta só a câmera (cam / cam3d), depois da física e antes de desenhar
+  updateFollowCamera(performance.now());
+
+  if(mode3d){
+    // --- Modo 3D ---
+    // Alvo da câmera: painel de edição → corpo acompanhado (já aplicado acima) → alvo congelado
+    // após "Desfixar câmera" → centro de massa (comportamento padrão)
+    if(cfg){
+      cam3d.targetX=cfg.x;
+      cam3d.targetY=cfg.y;
+      cam3d.targetZ=0;
+    }else if(follow){
+      // alvo definido por updateFollowCamera
+    }else if(!cam3d.free&&bodies.length){
+      let mx=0,my=0,mm=0;
+      for(const b of bodies){mx+=b.x*b.m;my+=b.y*b.m;mm+=b.m;}
+      if(mm>0){cam3d.targetX=mx/mm;cam3d.targetY=my/mm;cam3d.targetZ=0;}
+    }
+
+    // Trilhas
+    cullStat.drawn=0;cullStat.skipped=0;
+    for(const b of bodies){
+      if(cfg&&cfg.editTarget===b) continue;
+      if(cull3d&&!trailInView3D(b)) continue;
+      drawTrail3D(b);
+    }
+
+    // Previsão (se houver)
+    if(cfg&&pv&&pv.pts.length>3){
+      ctx.strokeStyle=pv.col;ctx.lineWidth=2;ctx.setLineDash([6,5]);
+      ctx.beginPath();let started=false;
+      for(let i=0;i<pv.pts.length;i+=2){
+        const pr=project3d(pv.pts[i],pv.pts[i+1],0);
+        if(!pr){started=false;continue;}
+        if(!started){ctx.moveTo(pr.x,pr.y);started=true;}
+        else ctx.lineTo(pr.x,pr.y);
+      }
+      ctx.stroke();ctx.setLineDash([]);
+    }
+    if(cfg&&pv2&&pv2.pts.length>3){
+      ctx.strokeStyle=pv2.col;ctx.lineWidth=1.4;ctx.setLineDash([3,4]);
+      ctx.beginPath();let started=false;
+      for(let i=0;i<pv2.pts.length;i+=2){
+        const pr=project3d(pv2.pts[i],pv2.pts[i+1],0);
+        if(!pr){started=false;continue;}
+        if(!started){ctx.moveTo(pr.x,pr.y);started=true;}
+        else ctx.lineTo(pr.x,pr.y);
+      }
+      ctx.stroke();ctx.setLineDash([]);
+    }
+
+    // Corpos (ordenar por profundidade)
+    const order=[];
+    for(const b of bodies){
+      if(cfg&&cfg.editTarget===b) continue;
+      const p=project3d(b.x,b.y,0);
+      if(cull3d&&(!p||!inView3D(p,bodyReach3D(b,p)))){cullStat.skipped++;continue} // fora da tela: não desenha
+      cullStat.drawn++;
+      order.push({b,z:p?p.z:0});
+    }
+    order.sort((a,c)=>c.z-a.z);
+    for(const o of order) drawBody3D(o.b);
+
+    // Corpo fantasma em edição
+    if(cfg){
+      const c=cfg;
+      if(!draw.gh||draw.gh.m!==c.m||draw.gh.bh!==c.bh) draw.gh={x:0,y:0,m:c.m,bh:c.bh,pts:null,name:''};
+      draw.gh.x=c.x;draw.gh.y=c.y;
+      drawBody3D(draw.gh);
+    }
+
+    // Legenda
+    const lg=$('legend3d');
+    lg.classList.add('show');
+    lg.innerHTML=`Visão 3D · arraste para girar · scroll = zoom<br>
+      <span style="color:#4ade80">—</span> trajetória N-corpos
+      ${pv2?' · <span style="color:#a0b4d2">┄</span> aproximação 2-corpos':''}
+      ${follow?'<br>Câmera acompanhando '+esc(follow.name):''}`;
+  }else{
+    // --- Modo 2D (original melhorado) ---
+    $('legend3d').classList.remove('show');
+
+    for(const b of bodies){
+      if(cfg&&cfg.editTarget===b) continue;
+      const X=sx(b.x),Y=sy(b.y);
+      for(const o of rings(b)){
+        ctx.strokeStyle=ZC[o.z];
+        ctx.lineWidth=hover&&hover.b===b&&hover.r===o.r?2.8:1.15;
+        ctx.beginPath();ctx.arc(X,Y,o.p,0,7);ctx.stroke();
+      }
+    }
+    bodies.forEach(b=>{
+      if(cfg&&cfg.editTarget===b) return;
+      drawTrail(b);
+    });
+
+    if(cfg){
+      const c=cfg,X=sx(c.x),Y=sy(c.y);
+      // Trajetória N-corpos (contínua)
+      if(pv&&pv.pts.length>3){
+        ctx.strokeStyle=pv.col;ctx.lineWidth=2;ctx.setLineDash([]);
+        ctx.beginPath();
+        for(let i=0;i<pv.pts.length;i+=2){
+          const a=sx(pv.pts[i]),b=sy(pv.pts[i+1]);
+          i?ctx.lineTo(a,b):ctx.moveTo(a,b);
+        }
+        ctx.stroke();
+      }
+      // Trajetória 2-corpos (tracejada discreta)
+      if(pv2&&pv2.pts.length>3){
+        ctx.strokeStyle=pv2.col;ctx.lineWidth=1.5;ctx.setLineDash([5,4]);
+        ctx.beginPath();
+        for(let i=0;i<pv2.pts.length;i+=2){
+          const a=sx(pv2.pts[i]),b=sy(pv2.pts[i+1]);
+          i?ctx.lineTo(a,b):ctx.moveTo(a,b);
+        }
+        ctx.stroke();ctx.setLineDash([]);
+      }
+      const L=Math.min(60,Math.max(18,c.v/(c.vc||c.v||1)*34));
+      const va=Math.hypot(c.avx-(c.ref?c.ref.vx:0),c.avy-(c.ref?c.ref.vy:0))||1;
+      const ux=(c.avx-(c.ref?c.ref.vx:0))/va,uy=(c.avy-(c.ref?c.ref.vy:0))/va;
+      ctx.strokeStyle='#fff';ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(X,Y);ctx.lineTo(X+ux*L,Y-uy*L);ctx.stroke();
+      drawBody2D(c,X,Y,true);
+    }
+
+    for(const b of bodies){
+      if(cfg&&cfg.editTarget===b) continue;
+      const X=sx(b.x),Y=sy(b.y);
+      drawBody2D(b,X,Y);
+      ctx.fillStyle='rgba(200,215,240,.75)';ctx.font='11px sans-serif';
+      ctx.fillText(b.name,X+visR(b.m)+5,Y-visR(b.m));
+      if(b===selected){
+        ctx.strokeStyle='#fff';ctx.lineWidth=1.2;ctx.setLineDash([3,3]);
+        ctx.beginPath();ctx.arc(X,Y,visR(b.m)+6,0,7);ctx.stroke();ctx.setLineDash([]);
+      }
+    }
+
+    // Escala
+    ctx.strokeStyle=ctx.fillStyle='rgba(200,215,240,.8)';ctx.lineWidth=1;
+    const bx=W-130,by=H-Math.max(70,isMobile()?100:92);
+    ctx.beginPath();ctx.moveTo(bx,by);ctx.lineTo(bx+100,by);ctx.stroke();
+    ctx.font='11px sans-serif';ctx.textAlign='right';
+    ctx.fillText(fdist(100*cam.s),bx+100,by-6);ctx.textAlign='left';
+  }
+}
+
+let last=0,lastInfo=0;
+function frame(ts){
+  const dtr=Math.min((ts-last)/1000,.05);last=ts;
+  if(running&&bodies.length){
+    simT+=advance(dtr*speed*3600);
+    if(bodies.some(b=>!isFinite(b.x+b.y+b.vx+b.vy))){setRun(false);restart();flash('Instabilidade numérica detectada: simulação pausada e restaurada ao último estado válido.')}
+  }
+  const d=simT/3600;
+  $('tm').textContent='t = '+(d<48?sci(d,1)+' h':d<24*730?sci(d/24,1)+' dias':sci(d/8766,2)+' anos');
+  if(ts-lastInfo>160){
+    updInfo();lastInfo=ts;
+    if($('body-menu').classList.contains('open')) buildBodyMenu();
+  }
+  draw();requestAnimationFrame(frame);
+}
+function fit(){
+  if(!bodies.length) return;
+  let x0=1e99,x1=-1e99,y0=1e99,y1=-1e99;
+  for(const b of bodies){x0=Math.min(x0,b.x);x1=Math.max(x1,b.x);y0=Math.min(y0,b.y);y1=Math.max(y1,b.y)}
+  cam.x=(x0+x1)/2;cam.y=(y0+y1)/2;
+  const sp=Math.max(x1-x0,y1-y0);
+  if(sp>0) cam.s=sp/(Math.min(W,H)*.58);
+  if(mode3d){
+    cam3d.targetX=cam.x;cam3d.targetY=cam.y;
+    cam3d.dist=Math.max(sp*1.8,1e9);
+    cam3d.free=false;
+  }
+}
+/** "Ajustar" reenquadra todos os corpos, então encerra o acompanhamento antes. */
+function fitAll(){
+  if(follow) releaseFollow('fit');
+  fit();
+}
+function setSpeedBtns(){
+  document.querySelectorAll('[data-s]').forEach(b=>b.classList.toggle('on',+b.dataset.s===speed));
+}
+[0.1,1,10,100,1000].forEach(s=>{
+  const b=document.createElement('button');
+  b.type='button';b.dataset.s=s;
+  b.textContent=String(s).replace('.',',')+'×';
+  b.onclick=()=>{speed=s;setSpeedBtns()};
+  $('sp').appendChild(b);
+});
+setSpeedBtns();
+
+$('pl').onclick=()=>setRun(!running);
+$('rs').onclick=()=>{restart();showSide()};
+$('add').onclick=()=>openCfg();
+$('ft').onclick=fitAll;$('ft2').onclick=()=>{fitAll();$('more-menu').classList.remove('open')};
+$('ex').onclick=example;$('ex2').onclick=()=>{example();$('more-menu').classList.remove('open')};
+$('cl').onclick=()=>{bodies=[];selected=null;simT=0;cnt=0;snapshot();resetFollow();closeCfg()};
+$('cl2').onclick=()=>{bodies=[];selected=null;simT=0;cnt=0;snapshot();resetFollow();closeCfg();$('more-menu').classList.remove('open')};
+$('zi').onclick=()=>{
+  glide.ts=0;
+  if(mode3d) cam3d.dist=Math.max(cam3d.minDist,cam3d.dist/1.5);
+  else cam.s/=1.5;
+};
+$('zo').onclick=()=>{
+  glide.ts=0;
+  if(mode3d) cam3d.dist=Math.min(cam3d.maxDist,cam3d.dist*1.5);
+  else cam.s*=1.5;
+};
+$('btn-more').onclick=()=>{$('body-menu').classList.remove('open');$('more-menu').classList.toggle('open')};
+$('btn-bodies').onclick=()=>{
+  $('more-menu').classList.remove('open');
+  buildBodyMenu();
+  $('body-menu').classList.toggle('open');
+};
+$('body-menu').onclick=e=>{
+  const bt=e.target.closest('button[data-n]');if(!bt) return;
+  const b=bodies.find(o=>o.name===bt.dataset.n);
+  $('body-menu').classList.remove('open');
+  if(b) selectBody(b);
+};
+$('unf').onclick=()=>releaseFollow('user');
+$('fol').onclick=()=>{if(selected) startFollow(selected)};
+
+$('btn3d').onclick=()=>{
+  mode3d=!mode3d;
+  $('btn3d').classList.toggle('on',mode3d);
+  $('btn3d').textContent=mode3d?'◉ Visão 2D':'◉ Visão 3D';
+  document.body.classList.toggle('mode3d',mode3d);
+  // Invalidar nuvens de pontos para regenerar com densidade adequada ao dispositivo
+  for(const b of bodies) b.pts=null;
+  if(mode3d){
+    if(follow) syncCameraToMode(); else fit();   // com alvo ativo, só reposiciona a câmera nele
+    flash(isMobile()
+      ?'Modo 3D: arraste para girar · pinça/botões ± para zoom.'
+      :'Modo 3D: arraste para girar a câmera · scroll para zoom. Física permanece Newtoniana no plano.');
+  }else{
+    if(follow) syncCameraToMode();
+    flash('Modo 2D: visão de cima (científica).');
+  }
+};
+
+function hitRing(px,py){
+  if(mode3d) return null;
+  let best=null;
+  for(const b of bodies){
+    if(cfg&&cfg.editTarget===b) continue;
+    const d=Math.hypot(px-sx(b.x),py-sy(b.y));
+    for(const o of rings(b)){
+      const dl=Math.abs(d-o.p);
+      if(dl<10&&(!best||dl<best.dl)) best={b,r:o.r,dl};
+    }
+  }
+  return best;
+}
+/** Foca a câmera (2D ou 3D) no corpo selecionado e ajusta o zoom. */
+function focusOn(b){
+  if(!b) return;
+  if(mode3d){
+    cam3d.targetX=b.x;
+    cam3d.targetY=b.y;
+    cam3d.targetZ=0;
+    // Aproxima o zoom para ver o corpo com bom detalhe
+    const desired=Math.max(cam3d.minDist, Math.min(cam3d.maxDist, cam3d.dist*0.55));
+    // Se estiver muito longe, aproxima; se já perto, mantém
+    if(cam3d.dist>desired*1.4) cam3d.dist=desired;
+    else if(cam3d.dist<desired*0.4) cam3d.dist=desired;
+  }else{
+    cam.x=b.x;
+    cam.y=b.y;
+    // Zoom para que o corpo ocupe ~1/8 da tela, mas sem exagerar
+    const targetS=Math.max(b.R*8, visR(b.m)*cam.s*0.15) / (Math.min(W,H)*0.12);
+    // Suaviza: só aproxima se estiver muito afastado
+    if(cam.s>targetS*2.5) cam.s=targetS*1.6;
+  }
+}
+
+function click(px,py){
+  if(mode3d){
+    // Seleção aproximada por projeção
+    if(!cfg){
+      let best=null,bd=28;
+      for(const b of bodies){
+        const pr=project3d(b.x,b.y,0);
+        if(!pr) continue;
+        const d=Math.hypot(px-pr.x,py-pr.y);
+        if(d<bd){bd=d;best=b;}
+      }
+      if(best){selectBody(best);return;}
+    }
+    selected=null;showSide();
+    return;
+  }
+  const w=toW(px,py);
+  if(!cfg){
+    for(const b of bodies){
+      if(Math.hypot(px-sx(b.x),py-sy(b.y))<=Math.max(visR(b.m)+8,14)){
+        selectBody(b);return;
+      }
+    }
+  }
+  const h=hitRing(px,py);
+  if(h){
+    const dx=w.x-h.b.x,dy=w.y-h.b.y,d=Math.hypot(dx,dy)||1;
+    const x=h.b.x+dx/d*h.r,y=h.b.y+dy/d*h.r;
+    if(cfg) setPos(x,y,h.b);else openCfg(x,y,h.b);
+    return;
+  }
+  if(cfg){setPos(w.x,w.y);return}
+  selected=null;showSide();
+}
+
+let drag=null;
+const rect=e=>{
+  const r=cv.getBoundingClientRect();
+  return[e.clientX-r.left,e.clientY-r.top];
+};
+
+cv.onpointerdown=e=>{
+  if(e.target!==cv) return;
+  cv.setPointerCapture(e.pointerId);
+  if(mode3d){
+    drag3d={x:e.clientX,y:e.clientY,yaw:cam3d.yaw,pitch:cam3d.pitch,id:e.pointerId,mv:false};
+  }else{
+    drag={x:e.clientX,y:e.clientY,cx:cam.x,cy:cam.y,mv:false,id:e.pointerId};
+  }
+};
+cv.onpointermove=e=>{
+  if(mode3d&&drag3d&&drag3d.id===e.pointerId){
+    const dx=e.clientX-drag3d.x, dy=e.clientY-drag3d.y;
+    if(Math.hypot(dx,dy)>5) drag3d.mv=true;
+    const sens=isMobile()?0.011:0.007;
+    cam3d.yaw=drag3d.yaw+dx*sens;
+    cam3d.pitch=Math.max(0.08,Math.min(1.45,drag3d.pitch+dy*sens));
+  }else if(drag&&drag.id===e.pointerId){
+    const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+    if(Math.hypot(dx,dy)>6) drag.mv=true;
+    if(drag.mv){
+      if(follow){ // mover o mapa = explorar livremente; reancora o arrasto para não dar salto
+        releaseFollow('pan');
+        drag.cx=cam.x+dx*cam.s;drag.cy=cam.y-dy*cam.s;
+      }
+      cam.x=drag.cx-dx*cam.s;cam.y=drag.cy+dy*cam.s;
+    }
+  }else if(!mode3d){
+    hover=hitRing(...rect(e));
+    cv.style.cursor=hover?'pointer':'default';
+  }
+};
+cv.onpointerup=e=>{
+  if(mode3d&&drag3d&&drag3d.id===e.pointerId){
+    if(!drag3d.mv) click(...rect(e));
+    drag3d=null;
+  }else if(drag&&drag.id===e.pointerId){
+    if(!drag.mv) click(...rect(e));
+    drag=null;
+  }
+};
+cv.onpointercancel=()=>{drag=null;drag3d=null};
+
+cv.addEventListener('wheel',e=>{
+  e.preventDefault();
+  glide.ts=0;
+  if(mode3d){
+    cam3d.dist*=Math.exp(e.deltaY*0.0015);
+    cam3d.dist=Math.max(cam3d.minDist,Math.min(cam3d.maxDist,cam3d.dist));
+  }else{
+    const[px,py]=rect(e),w=toW(px,py);
+    cam.s*=Math.exp(e.deltaY*.0012);
+    cam.x=w.x-(px-W/2)*cam.s;
+    cam.y=w.y+(py-H/2)*cam.s;
+  }
+},{passive:false});
+
+document.querySelectorAll('.bar, #side, #more-menu, #body-menu, #overlay').forEach(el=>{
+  el.addEventListener('pointerdown',e=>e.stopPropagation());
+});
+
+addEventListener('resize',()=>{resize();showSide()});
+resize();syncHint();requestAnimationFrame(frame);
+</script>
+</body>
+</html>

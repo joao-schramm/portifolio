@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Portfólio de João Gabriel: projetos e estudos em desenvolvimento web e programação.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <title>Portfólio | João Gabriel</title>
+</head>
+<body>
+    <main>
+        <section id="home" aria-labelledby="titulo-principal">
+            <div class="home_title">
+                <h1 id="titulo-principal">Transformando ideias<br>em código.</h1>
+            </div>
+            <div class="home_text">
+                <p>Desenvolvo projetos, exploro novas tecnologias e transformo curiosidade em soluções. Sempre aprendendo, sempre construindo.</p>
+            </div>
+            <a class="button_home" href="https://github.com/joao-schramm" target="_blank" rel="noopener noreferrer">
+                GitHub <i class="bi bi-github" aria-hidden="true"></i>
+            </a>
+        </section>
+
+        <section id="cards" aria-labelledby="titulo-conhecimentos">
+            <div class="cards_container">
+                <h2 id="titulo-conhecimentos">Meus conhecimentos</h2>
+
+                <div class="card" role="button" tabindex="0" data-painel="projeto-frontend" aria-controls="projeto-frontend" aria-expanded="false">
+                    <h3>Front-End</h3>
+                    <p>Interfaces web: estrutura, aparência e interatividade para quem utiliza a aplicação.</p>
+                    <span class="card-icons" aria-hidden="true">
+                        <i class="fa-brands fa-html5"></i>
+                        <i class="fa-brands fa-css3-alt"></i>
+                        <i class="fa-brands fa-square-js"></i>
+                    </span>
+                   
+                </div>
+
+                <div class="card" role="button" tabindex="0" data-painel="projeto-backend" aria-controls="projeto-backend" aria-expanded="false">
+                    <h3>Back-End</h3>
+                    <p>Lógica e processamento por trás das aplicações, regras de negócio e comunicação com dados.</p>
+                    <span class="card-icons" aria-hidden="true">
+                        <i class="fa-brands fa-python"></i>
+                        <i class="fa-brands fa-node-js"></i>
+                    </span>
+                    
+                </div>
+
+                <div class="card" role="button" tabindex="0" data-painel="projeto-vibe-coding" aria-controls="projeto-vibe-coding" aria-expanded="false">
+                    <h3>Vibe Coding</h3>
+                    <p>Desenvolvimento com apoio de IA, avaliando sugestões, corrigindo erros e validando resultados.</p>
+                    <span class="card-icons" aria-hidden="true">
+                        <i class="fa-brands fa-openai"></i>
+                        <i class="fa-brands fa-claude"></i>
+                    </span>
+                    
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="painel-backdrop" data-fechar-painel hidden></div>
+
+    <section class="projeto" id="projeto-frontend" role="dialog" aria-modal="true" aria-labelledby="titulo-frontend" aria-hidden="true" inert>
+        <button class="fechar-projeto" type="button" aria-label="Fechar detalhes de Front-End">&times;</button>
+        <p class="painel-kicker">ÁREA DE ESTUDO</p>
+        <h2 id="titulo-frontend">Front-End</h2>
+        <p class="painel-intro">O Front-End é a parte de uma aplicação com a qual as pessoas interagem diretamente no navegador.</p>
+
+        <h3>O que envolve?</h3>
+        <p><strong>HTML</strong> organiza o conteúdo e dá estrutura à página. <strong>CSS</strong> define o visual, o posicionamento e a adaptação a diferentes telas. <strong>JavaScript</strong> acrescenta comportamento e interatividade.</p>
+
+        <h3>O que busco desenvolver</h3>
+        <ul>
+            <li>Interfaces claras e fáceis de utilizar.</li>
+            <li>Layouts responsivos para computadores e celulares.</li>
+            <li>Interações com JavaScript e manipulação do DOM.</li>
+            <li>Boas práticas de semântica e acessibilidade.</li>
+        </ul>
+
+        <h3>Como isso aparece nos projetos</h3>
+        <p>O objetivo é transformar ideias em interfaces funcionais, organizando o código para facilitar testes, manutenção e evolução. Os conhecimentos e tecnologias de cada projeto devem ser apresentados de acordo com o que foi realmente utilizado.</p>
+    </section>
+
+    <section class="projeto" id="projeto-backend" role="dialog" aria-modal="true" aria-labelledby="titulo-backend" aria-hidden="true" inert>
+        <button class="fechar-projeto" type="button" aria-label="Fechar detalhes de Back-End">&times;</button>
+        <p class="painel-kicker">ÁREA DE ESTUDO</p>
+        <h2 id="titulo-backend">Back-End</h2>
+        <p class="painel-intro">O Back-End cuida da lógica que funciona por trás de uma aplicação: recebe informações, aplica regras e organiza a comunicação entre sistemas.</p>
+
+        <h3>O que envolve?</h3>
+        <p>Dependendo do projeto, o Back-End pode incluir lógica de negócio, APIs, validação de dados, autenticação e integração com bancos de dados. Linguagens e ferramentas como Python e Node.js podem ser utilizadas nesse contexto.</p>
+
+        <h3>O que busco desenvolver</h3>
+        <ul>
+            <li>Raciocínio lógico e organização do código.</li>
+            <li>Processamento e validação de informações.</li>
+            <li>Comunicação entre aplicações por APIs.</li>
+            <li>Fundamentos de bancos de dados e segurança.</li>
+        </ul>
+
+        <h3>Como isso aparece nos projetos</h3>
+        <p>Uma aplicação bem estruturada precisa tratar entradas inesperadas, comunicar erros com clareza e manter suas regras consistentes. Conforme novos projetos forem desenvolvidos, esta seção pode apresentar exemplos concretos dessas soluções.</p>
+    </section>
+
+    <section class="projeto" id="projeto-vibe-coding" role="dialog" aria-modal="true" aria-labelledby="titulo-vibe-coding" aria-hidden="true" inert>
+        <button class="fechar-projeto" type="button" aria-label="Fechar detalhes de Vibe Coding">&times;</button>
+        <p class="painel-kicker">PROCESSO DE DESENVOLVIMENTO</p>
+        <h2 id="titulo-vibe-coding">Vibe Coding</h2>
+        <p class="painel-intro">Uso de ferramentas de inteligência artificial como apoio ao desenvolvimento, sem deixar de revisar e compreender o código produzido.</p>
+
+        <h3>Como utilizo a IA</h3>
+        <p>A IA pode ajudar a explorar abordagens, criar uma primeira versão de funcionalidades, explicar erros e sugerir melhorias. As sugestões precisam ser analisadas, testadas e ajustadas ao objetivo do projeto.</p>
+
+        <h3>Etapas do processo</h3>
+        <ul>
+            <li>Definir o problema e o resultado esperado.</li>
+            <li>Usar a IA para explorar possíveis soluções.</li>
+            <li>Revisar o código e entender as alterações propostas.</li>
+            <li>Testar o comportamento e corrigir problemas.</li>
+        </ul>
+
+        <h3>Projeto em destaque: Laboratório de Gravitação</h3>
+        <p><strong>Problema:</strong> compreender interações gravitacionais apenas por fórmulas pode ser difícil.</p>
+        <p><strong>Ideia:</strong> criar uma simulação visual para explorar corpos celestes e observar suas interações.</p>
+        <p><strong>Uso da IA:</strong> apoiar a implementação e a identificação de erros, avaliando as sugestões em vez de aceitá-las automaticamente.</p>
+        <p><strong>Resultado:</strong> uma aplicação interativa baseada na Lei da Gravitação Universal de Newton, conforme a implementação atual do projeto.</p>
+
+        <a class="projeto-link" href="exemplo de projetos/Index.html">
+            Ver Laboratório de Gravitação <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
+        </a>
+        <img class="imagem-projeto" src="img/labg.png" alt="Captura de tela do Laboratório de Gravitação" loading="lazy">
+    </section>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,351 @@
+
+* {
+    font-family: "Space Grotesk", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    margin: 0;
+    padding: 0;
+    color: #F5F9FF;
+}
+
+
+
+:root {
+    --bg-primary: #0B1220;
+    --bg-secondary: #101A2E;
+
+    --card-bg: #14233B;
+    --glass-bg: rgba(20, 35, 59, 0.55);
+    --glass-border: rgba(255, 255, 255, 0.12);
+
+    --text-primary: #F5F9FF;
+    --text-secondary: #A9BDD8;
+
+    --accent: #78A9FF;
+    --accent-hover: #8BB7FF;
+}
+
+body {
+    background-color: #0B1220;
+
+    background-image: radial-gradient(
+        circle 300px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+        rgba(120, 169, 255, 0.16),
+        transparent 80%
+    );
+
+    background-attachment: fixed;
+    min-height: 100vh;
+}
+
+#home {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-end;
+
+    min-height: 80vh;
+    padding: 0 0 40px 50px;
+   
+}
+
+.home_title h1 {
+    font-size: clamp(2rem, 4.7vw, 4.2rem);
+    margin-bottom: 16px;
+}
+
+.home_text p {
+    font-size: 1.25rem;
+    max-width: 600px;
+    line-height: 1.6;
+}
+
+.button_home {
+    display: inline-block;
+    margin-top: 28px;
+    padding: 18px 42px;
+
+    /* Vidro translúcido */
+    background: linear-gradient(
+        135deg,
+        rgba(120, 169, 255, 0.16),
+        rgba(20, 35, 59, 0.35)
+    );
+
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+
+    /* Borda iluminada */
+    border: 1px solid rgba(245, 249, 255, 0.22);
+    border-top-color: rgba(245, 249, 255, 0.55);
+    border-right-color: rgba(245, 249, 255, 0.55);
+    border-radius: 16px;
+
+    /* Profundidade */
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.22),
+        inset 0 1px 0 rgba(245, 249, 255, 0.12);
+
+    transition:
+        transform 0.3s ease,
+        background 0.3s ease,
+        box-shadow 0.3s ease,
+        border-color 0.3s ease;
+}
+
+.button_home a {
+    color: #F5F9FF;
+    font-family: "Inter", sans-serif;
+    font-size: 1.15rem;
+    font-weight: 500;
+    text-decoration: none;
+    letter-spacing: 0.3px;
+}
+
+.button_home:hover {
+    transform: translateY(-3px);
+
+    background: linear-gradient(
+        135deg,
+        rgba(120, 169, 255, 0.28),
+        rgba(20, 35, 59, 0.55)
+    );
+
+    border-color: rgba(120, 169, 255, 0.55);
+
+    box-shadow:
+        0 10px 35px rgba(120, 169, 255, 0.12),
+        inset 0 1px 0 rgba(245, 249, 255, 0.2);
+}
+
+
+
+/* SEÇÃO DE CONHECIMENTOS */
+
+
+#cards {
+    padding: 120px 50px 80px;
+    margin-top: 40px;
+}
+
+
+
+
+
+.cards_container {
+    max-width: 1200px;
+    margin: 0 auto;
+
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.cards_container > h2 {
+    grid-column: 1 / -1;
+    font-size: 2rem;
+    margin-bottom: 12px;
+}
+
+
+
+.card {
+    padding: 32px;
+    border-radius: 20px;
+
+    background: linear-gradient(
+        135deg,
+        rgba(120, 169, 255, 0.12),
+        rgba(20, 35, 59, 0.45)
+    );
+
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-top-color: rgba(255, 255, 255, 0.35);
+
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
+    transition:
+        transform 0.3s ease,
+        border-color 0.3s ease,
+        background 0.3s ease,
+        box-shadow 0.3s ease;
+}
+
+
+
+.card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+}
+
+
+
+.card p {
+    font-family: "Inter", sans-serif;
+    color: #A9BDD8;
+    font-size: 1rem;
+    line-height: 1.7;
+}
+
+
+
+.card:hover {
+    cursor: pointer;
+    transform: translateY(-6px);
+
+    background: linear-gradient(
+        135deg,
+        rgba(120, 169, 255, 0.20),
+        rgba(20, 35, 59, 0.60)
+    );
+
+    border-color: rgba(120, 169, 255, 0.45);
+
+    box-shadow:
+        0 12px 35px rgba(0, 0, 0, 0.22),
+        0 0 25px rgba(120, 169, 255, 0.08);
+}
+
+.card i,
+.card img {
+    width: 32px;
+    height: 32px;
+    font-size: 32px;
+    object-fit: contain;
+    margin: 18px 8px 0 0;
+    vertical-align: middle;
+}
+.projeto img {
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+    display: block;
+    border-radius: 16px;
+}
+/* MENU LATERAL DO PROJETO */
+
+.projeto {
+    position: fixed;
+    top: 0;
+    right: 0;
+
+    overflow-x: hidden;
+
+    width: min(480px, 92vw);
+    height: 100vh;
+    height: 100dvh;
+    box-sizing: border-box;
+    padding: 40px 32px;
+
+    overflow-y: auto;
+
+    background: linear-gradient(
+        145deg,
+        rgba(120, 169, 255, 0.16),
+        rgba(16, 26, 46, 0.88) 40%,
+        rgba(11, 18, 32, 0.96)
+    );
+
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+
+    border-left: 1px solid rgba(245, 249, 255, 0.22);
+    box-shadow:
+        -12px 0 40px rgba(0, 0, 0, 0.3),
+        inset 1px 0 0 rgba(245, 249, 255, 0.06);
+
+    z-index: 1000;
+
+    transform: translateX(100%);
+    visibility: hidden;
+
+    transition:
+        transform 0.4s ease,
+        visibility 0.4s ease;
+}
+
+.projeto.aberto {
+    transform: translateX(0);
+    visibility: visible;
+}
+
+/* TÍTULO */
+
+.projeto h3 {
+    font-size: clamp(1.8rem, 4vw, 2.4rem);
+    line-height: 1.2;
+    margin: 32px 0 20px;
+    letter-spacing: -0.5px;
+}
+
+/* DESCRIÇÃO */
+
+.projeto p {
+    font-family: "Inter", sans-serif;
+    color: #A9BDD8;
+    font-size: 1.1rem;
+    line-height: 1.8;
+    margin-bottom: 24px;
+}
+
+/* IMAGEM */
+
+.projeto img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 16px;
+    border: 1px solid rgba(245, 249, 255, 0.16);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.projeto img:hover {
+    transform: scale(1.02);
+    border-color: rgba(120, 169, 255, 0.55);
+}
+.fechar-projeto {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+
+    width: 44px;
+    height: 44px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 30px;
+    color: #F5F9FF;
+
+    background: rgba(245, 249, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 14px;
+
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.fechar-projeto:hover {
+    background: rgba(120, 169, 255, 0.2);
+    border-color: #78A9FF;
+    transform: rotate(90deg);
+}
+.projeto {
+    /* mantenha aqui as outras propriedades que você já tem */
+    transform: translateX(100%);
+    visibility: hidden;
+    transition: transform 0.4s ease, visibility 0.4s ease;
+}
+
+.projeto.aberto {
+    transform: translateX(0);
+    visibility: visible;
+}
