@@ -9,6 +9,8 @@
     color: #F5F9FF;
 }
 
+
+
 :root {
     --bg-primary: #0B1220;
     --bg-secondary: #101A2E;
@@ -127,17 +129,7 @@ body {
     margin-top: 40px;
 }
 
-#cards {
-    padding: 120px 50px 80px;
-    margin-top: 40px;
 
-    background: linear-gradient(
-        180deg,
-        rgba(6, 9, 15, 0),
-        rgba(10, 16, 29, 0.85) 15%,
-        #070b12 45%
-    );
-}
 
 
 
@@ -204,6 +196,7 @@ body {
 
 
 .card:hover {
+    cursor: pointer;
     transform: translateY(-6px);
 
     background: linear-gradient(
@@ -227,4 +220,132 @@ body {
     object-fit: contain;
     margin: 18px 8px 0 0;
     vertical-align: middle;
+}
+.projeto img {
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+    display: block;
+    border-radius: 16px;
+}
+/* MENU LATERAL DO PROJETO */
+
+.projeto {
+    position: fixed;
+    top: 0;
+    right: 0;
+
+    overflow-x: hidden;
+
+    width: min(480px, 92vw);
+    height: 100vh;
+    height: 100dvh;
+    box-sizing: border-box;
+    padding: 40px 32px;
+
+    overflow-y: auto;
+
+    background: linear-gradient(
+        145deg,
+        rgba(120, 169, 255, 0.16),
+        rgba(16, 26, 46, 0.88) 40%,
+        rgba(11, 18, 32, 0.96)
+    );
+
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+
+    border-left: 1px solid rgba(245, 249, 255, 0.22);
+    box-shadow:
+        -12px 0 40px rgba(0, 0, 0, 0.3),
+        inset 1px 0 0 rgba(245, 249, 255, 0.06);
+
+    z-index: 1000;
+
+    transform: translateX(100%);
+    visibility: hidden;
+
+    transition:
+        transform 0.4s ease,
+        visibility 0.4s ease;
+}
+
+.projeto.aberto {
+    transform: translateX(0);
+    visibility: visible;
+}
+
+/* TÍTULO */
+
+.projeto h3 {
+    font-size: clamp(1.8rem, 4vw, 2.4rem);
+    line-height: 1.2;
+    margin: 32px 0 20px;
+    letter-spacing: -0.5px;
+}
+
+/* DESCRIÇÃO */
+
+.projeto p {
+    font-family: "Inter", sans-serif;
+    color: #A9BDD8;
+    font-size: 1.1rem;
+    line-height: 1.8;
+    margin-bottom: 24px;
+}
+
+/* IMAGEM */
+
+.projeto img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 16px;
+    border: 1px solid rgba(245, 249, 255, 0.16);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.projeto img:hover {
+    transform: scale(1.02);
+    border-color: rgba(120, 169, 255, 0.55);
+}
+.fechar-projeto {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+
+    width: 44px;
+    height: 44px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 30px;
+    color: #F5F9FF;
+
+    background: rgba(245, 249, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 14px;
+
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.fechar-projeto:hover {
+    background: rgba(120, 169, 255, 0.2);
+    border-color: #78A9FF;
+    transform: rotate(90deg);
+}
+.projeto {
+    /* mantenha aqui as outras propriedades que você já tem */
+    transform: translateX(100%);
+    visibility: hidden;
+    transition: transform 0.4s ease, visibility 0.4s ease;
+}
+
+.projeto.aberto {
+    transform: translateX(0);
+    visibility: visible;
 }
